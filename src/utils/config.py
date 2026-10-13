@@ -16,7 +16,17 @@ class Config:
     """
 
     def __init__(self) -> None:
-        pass
+        """ 
+        This initializes the configuration by loading the 
+        environment variables.
+        """
+        load_dotenv()
+
+        # Database configuration
+        self.database_path: str = os.getenv("DATABASE_PATH", "fuel_rates.db")
+        # Also supports DB_PATH for older setups
+        if not self.database_path or self.database_path == "fuel_rates.db":
+              self.database_path = os.getenv("DB_PATH", "fuel_rate.db")
 
     def get_database_path(self) -> str:
         pass
