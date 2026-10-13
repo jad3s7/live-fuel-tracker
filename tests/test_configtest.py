@@ -1,10 +1,8 @@
 """
-Pytest configuration file
-This file sets up the test environment.
-path is now handled by pytest.ini
+Test file for conftest.py fixtures
+path is handled by pytest.ini
 """
-import pytest
-from conftest import *
+import pytest 
 
 def test_sample_data_fixture(sample_data: dict[str, str]):
     """ Test that the sample data fixture works."""
@@ -18,6 +16,5 @@ def test_sample_data_fixture(sample_data: dict[str, str]):
 def test_sample_data_is_mutable(sample_data: dict[str, str]):
     """Test to check if each test fixture gets a new copy."""
 
-    # sample_data == {"new_key": "new_value"}
     sample_data["new_key"] = "new_value"
     assert "new_key" in sample_data
