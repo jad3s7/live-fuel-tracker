@@ -1,28 +1,23 @@
 """
 Pytest configuration file
-This file sets up the test environment and fixtures.
+This file sets up the test environment.
+path is now handled by pytest.ini
 """
-import sys
-import os
+import pytest
+from conftest import *
 
-#  Add the project root and src directory to the Python path:
-def test_root_path():
+def test_sample_data_fixture(sample_data: dict[str, str]):
+    """ Test that the sample data fixture works."""
 
-    root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    result = root_path
+    assert sample_data is not None
+    assert isinstance(sample_data, dict)
+    assert sample_data == {"key": "value"}
+    assert "key" in sample_data
+    assert sample_data["key"] == "value"
 
-    if root_path not in sys.path:
-        sys.path.insert(0, root_path)
-    assert result in sys.path
+def test_sample_data_is_mutable(sample_data: dict[str, str]):
+    """Test to check if each test fixture gets a new copy."""
 
-def test_src_path():
-    root_path =  os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    src_path = os.path.join(root_path, 'src')
-
-    result = src_path
-    if result not in sys.path:
-        sys.path.insert(0, src_path)
-
-    assert root_path in sys.path
-    assert src_path in sys.path
-
+    # sample_data == {"new_key": "new_value"}
+    sample_data["new_key"] = "new_value"
+    assert "new_key" in sample_data
