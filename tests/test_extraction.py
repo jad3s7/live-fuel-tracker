@@ -55,8 +55,18 @@ class TestFuelExtractor:
           assert fuel_data['location'] == 'Coastal'
           assert 15 >= fuel_data['price_per_liter'] <= 35
 
-    def test_extraction_initialization(self) -> None:
-            pass
+    def test_fuel_price_comparison(self) -> None:
+          """"
+          Test that checks the comparison of fuel price
+          across different regions and fuel types
+          """
+          extraction = FuelExtractor()
+          fuel_data = extraction.get_fuel_price_comparison()
+
+          assert fuel_data is not None
+          assert 'regional_differences' in fuel_data
+          assert 'cheapest_fuel' in fuel_data
+          assert 'most_expensive_fuel' in fuel_data
 
     def test_extraction_initialization(self) -> None:
             pass
