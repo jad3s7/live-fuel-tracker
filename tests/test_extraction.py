@@ -14,8 +14,22 @@ class TestFuelExtractor:
         assert extraction.base_url == "https://api.fuelsa.co.za/v1/prices"
 
         
-    def test_extraction_initialization(self) -> None:
-            pass
+    def test_get_current_rate_structure(self) -> None:
+            """ Test that checks if current rate returns the correct 
+            fuel data structure, which should be a dict."""
+            extraction = FuelExtractor()
+            extracted_current_rate = extraction.get_current_rate()
+            price = extracted_current_rate.get('price_per_liter', extracted_current_rate.get('rate'))
+
+            if extracted_current_rate:
+                   assert isinstance(extracted_current_rate, dict)
+                   assert 'timestamp' in extracted_current_rate
+                   assert 'fuel_type' in extracted_current_rate
+                   assert 'location' in extracted_current_rate
+                   assert price is not None
+                   assert isinstance(price, float)
+                   assert price > 0
+                   
 
     def test_extraction_initialization(self) -> None:
             pass
