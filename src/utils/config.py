@@ -28,6 +28,33 @@ class Config:
         if not self.database_path or self.database_path == "fuel_rates.db":
               self.database_path = os.getenv("DB_PATH", "fuel_rate.db")
 
+        # Fuel Price API configuration
+        self.fuel_api_provider: str = os.getenv('FUEL_API_PROVIDER', 'simulated').lower()
+        self.fuel_api_key: str = os.getenv('FUEL_API_KEY', '')
+        self.api_timeout = int(os.getenv('API_TIMEOUT', '10'))
+        self.fuel_api_base_url: str = os.getenv('FUEL_API_BASE_URL', '')
+        if not self.fuel_api_base_url:
+              self.fuel_api_base_url = os.getenv('API_BASE_URL', '')
+
+        # Email configuration
+        self.smtp_server: str = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+        self.smtp_port = int(os.getenv('SMTP_PORT', '587'))
+        self.sender_email: str = os.getenv('SENDER_EMAIL', '')
+        self.sender_password = os.getenv('SENDER_PASSWORD', '')
+
+        # Dashboard configuration
+        self.dashboard_port = int(os.getenv('DASHBOARD_PORT', '8501'))
+        self.dashboard_host: str = os.getenv('DASHBOARD_HOST', 'localhost')
+
+        # Report configuratiion
+        self.reports_dir: str = os.getenv('REPORTS_DIR', 'reports')
+        self.logs_dir: str = os.getenv('LOGS_DIR', 'logs')
+
+        # Automation configuration
+        self.auto_refresh_minutes = int(os.getenv('AUTO_REFRESH_MINUTES', '60'))
+        self.enable_email_alerts: bool = os.getenv('ENABLE_EMAIL_ALERTS','false').lower() == 'true'
+
+
     def get_database_path(self) -> str:
         pass
 
