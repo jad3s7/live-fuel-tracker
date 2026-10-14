@@ -6,7 +6,7 @@ In this project I made room for API extraction, but I opted for simulated due to
 
 class TestFuelExtractor:
     """ Test class that checks for the functionality of the fuel extraction. """
-    
+
     def test_extraction_initialization(self) -> None:
         """ Test that checks if the extraction can be initialized. """
         extraction = FuelExtractior(base_url="https://api.fuelsa.co.za/v1/prices")
@@ -21,7 +21,7 @@ class TestFuelExtractor:
         fuel_data = extraction.get_current_rate()
         price = fuel_data.get('price_per_liter', fuel_data.get('rate'))
 
-        if fuel_rate:
+        if fuel_data:
             assert isinstance(fuel_data, dict)
             assert 'timestamp' in fuel_data
             assert 'fuel_type' in fuel_data
@@ -51,6 +51,7 @@ class TestFuelExtractor:
           fuel_data = extraction.get_fuel_price_per_type()
 
           assert fuel_data is not None
+          assert isinstance(fuel_data, dict)
           assert fuel_data['fuel_type'] == 'Petrol 95'
           assert fuel_data['location'] == 'Coastal'
           assert 15 >= fuel_data['price_per_liter'] <= 35
@@ -64,12 +65,32 @@ class TestFuelExtractor:
           fuel_data = extraction.get_fuel_price_comparison()
 
           assert fuel_data is not None
+          assert isinstance(fuel_data, dict)
           assert 'regional_differences' in fuel_data
           assert 'cheapest_fuel' in fuel_data
           assert 'most_expensive_fuel' in fuel_data
 
-    def test_extraction_initialization(self) -> None:
-            pass
+    def test_get_historical_fuel_data_structure(self) -> None:
+        """
+        Test that checks if historical_fuel_data returns
+        the correct structure.
+        """
+        extraction = FuelExtractor()
+        hist_fuel_data = extraction.get_historical_fuel_data(days=5)
+        price = hist_fuel_data.get('price_per_liter', hist_fuel_data.get('rate'))
+
+        assert hist_fuel_data is not None
+        assert isinstance(hist_fuel_data, list)
+
+        if hist_fuel_data:
+            for fuel_data in hist_fuel_data:
+                assert isinstance(fuel_data, dict)
+                assert 'timestamp' in fuel_data
+                assert 'location' in fuel_data
+                assert price is not None
+                assert 'fuel_type' in fuel_data
+
+
 
     def test_extraction_initialization(self) -> None:
             pass
