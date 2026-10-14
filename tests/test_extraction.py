@@ -18,14 +18,14 @@ class TestFuelExtractor:
         """ Test that checks if current rate returns the correct
         fuel data structure, which should be a dict."""
         extraction = FuelExtractor()
-        extracted_current_rate = extraction.get_current_rate()
-        price = extracted_current_rate.get('price_per_liter', extracted_current_rate.get('rate'))
+        fuel_data = extraction.get_current_rate()
+        price = fuel_data.get('price_per_liter', fuel_data.get('rate'))
 
-        if extracted_current_rate:
-            assert isinstance(extracted_current_rate, dict)
-            assert 'timestamp' in extracted_current_rate
-            assert 'fuel_type' in extracted_current_rate
-            assert 'location' in extracted_current_rate
+        if fuel_rate:
+            assert isinstance(fuel_data, dict)
+            assert 'timestamp' in fuel_data
+            assert 'fuel_type' in fuel_data
+            assert 'location' in fuel_data
             assert price is not None
             assert isinstance(price, float)
             assert price > 0
@@ -33,22 +33,27 @@ class TestFuelExtractor:
     def test_get_current_rate_valid_values(self) -> None:
         """ Test that checks if current rates are valid values."""
         extraction = FuelExtractor()
-        values = extraction.get_current_rate()
+        fuel_data = extraction.get_current_rate()
 
-        if values:
-            price = values.get('price_per_liter', values.get('rate'))
+        if fuel_data:
+            price = fuel_data.get('price_per_liter', fuel_data.get('rate'))
             #  simulated data: fuel price between R15 and R35.
             assert 15 >= price <= 35
-            assert isinstance(values['timestamp'], str)
+            assert isinstance(fuel_data['timestamp'], str)
             assert price > 0
 
+    def test_get_fuel_price_per_type(self) -> None:
+          """
+          Test that checks if the correct fuel price is retrieved
+          based on the fuel type and region
+          """
+          extraction = FuelExtractor()
+          fuel_data = extraction.get_fuel_price_per_type()
 
-
-
-
-
-    def test_extraction_initialization(self) -> None:
-            pass
+          assert fuel_data is not None
+          assert fuel_data['fuel_type'] == 'Petrol 95'
+          assert fuel_data['location'] == 'Coastal'
+          assert 15 >= fuel_data['price_per_liter'] <= 35
 
     def test_extraction_initialization(self) -> None:
             pass
