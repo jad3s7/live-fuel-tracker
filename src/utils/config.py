@@ -91,6 +91,17 @@ class Config:
     
 
     def __str__(self) -> str:
-            pass
+         return self.string_representation_config()
 
+# Class Config: Global config
+config = Config()
 
+if __name__== "__main__":
+    #  Test the configuration
+    print("Testing the configuration setup:")
+    print("=================================")
+    print(f"Configuration: {config}")
+    print(f"Database Path: {config.get_database_path()}")
+    print(f"Email configuration: {config.is_email_configured()}")
+    
+	
