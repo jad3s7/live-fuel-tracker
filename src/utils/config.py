@@ -56,13 +56,39 @@ class Config:
 
 
     def get_database_path(self) -> str:
-        pass
+        """ 
+        Function retrieves the database path.
+
+
+        Returns:
+            The database path to the SQLite database file.
+        """
+        return self.database_path
+
 
     def is_email_configured(self) -> bool:
-            pass
+        """
+        Function that checks if email configuration is set up.
+
+        Returns:
+            - Boolean True if email configuration is done.
+            - Boolean False if email configuration is incomplete.            
+        """
+        return bool(self.sender_email and self.sender_password)
 
     def string_representation_config(self) -> str:
-            pass
+        """
+        Displays the configuration.
+
+        Returns:
+        - config database path
+        - api timeout
+        - email config
+        """
+        return (f"Config(database_path: {self.database_path}), "
+                f"api_time: {self.api_timeout}, "
+                f"Emaill_configured: {self.is_email_configured()})")
+    
 
     def __str__(self) -> str:
             pass
