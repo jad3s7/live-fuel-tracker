@@ -29,7 +29,7 @@ class FuelExtractor:
     - Coastal (Western Cape, Eastern Cape, KZN)
     """
 
-    def __init__(self, api_provider: str, api_key: str, base_url: str) -> None
+    def __init__(self, api_provider: str, api_key: str, base_url: str) -> None:
         """
         Constructor that initializes the FuelExtractor.
         
@@ -62,17 +62,40 @@ class FuelExtractor:
         else: return ''
 
 
-    def get_current_rate(self):
-        ...
+    def get_current_rate(self) -> None:
+        """
+        Fetches the current SA fuel price.
+        
+        Returns:
+            - Dict that contains fuel data that has fuel types and regions, timestamp.
+        
+        Return None if API fails.
+        """
+        try:
+            # First attempt is to fetch data from real API based on provider used.
+            if self.api_provider == 'zaref':
+                api_used: dict = self.fetch_from_zaref()
+            elif self.api_provider == 'fuelsa':
+                api_used: dict = self.fetch_from_fuelsa()
 
-    def get_fuel_price_per_type(self):
-        ...
+            if api_used:
+                return api_used
+            else: 
+                print(f"API request failed for {self.api_provider}, will be using simulated data.")
 
-    def get_fuel_price_comparison(self):
-        ...
+            return self.generate_simulated_data()
 
-    def get_historical_fuel_data(self, days):
-        ...
+        except requests.exceptions.RequestException as error:
+            print()
+            print()
+            return
+         
+        except json.JSONDecodeError as error:
+            print()
+            print()
+            return
 
-    def get_historical_fuel_data_zero_days(self):
-        ...
+        except Exception as error:
+            print()
+            print()
+            return
