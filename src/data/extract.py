@@ -173,4 +173,16 @@ class FuelExtractor:
         if '50' in fuel_string:
             return 'diesel_50ppm'
         return 'petrol_95'
-    @
+    @staticmethod
+    def normalize_region(region: str) -> str:
+        regional = str(region).strip().lower().replace('_', ' ')
+        coastal_regions = {
+            'coastal',
+            'western cape',
+            'eastern cape',
+            'kzn'
+        }
+        if region in coastal_regions:
+            return 'Coastal'
+        return 'Inland'
+    
