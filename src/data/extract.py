@@ -147,20 +147,30 @@ class FuelExtractor:
         string_formatter = str(fuel_type).strip().lower().replace('-', '_').replace(' ', '_')
 
         mapping = {
-            'petrol_95': 'Petrol 95',
-            'petrol95': 'Petrol 95',
-            '95': 'Petrol 95',
-            'petrol_93': 'Petrol 93',
-            'petrol93': 'Petrol 93',
-            '93': 'Petrol 93',
-            'diesel_50ppm': 'Diesel 50ppm',
-            'diesel50ppm': 'Diesel 50ppm',
-            'diesel_50': 'Diesel 50ppm',
-            'diesel_500ppm': 'Diesel 500ppm',
-            'diesel500ppm': 'Diesel 500ppm',
-            'diesel_500': 'Diesel 500ppm',
-            'diesel': 'Diesel 50ppm',
+            'petrol_95':        'Petrol 95',
+            'petrol95':         'Petrol 95',
+            '95':               'Petrol 95',
+            'petrol_93':        'Petrol 93',
+            'petrol93':         'Petrol 93',
+            '93':               'Petrol 93',
+            'diesel_50ppm':     'Diesel 50ppm',
+            'diesel50ppm':      'Diesel 50ppm',
+            'diesel_50':        'Diesel 50ppm',
+            'diesel_500ppm':    'Diesel 500ppm',
+            'diesel500ppm':     'Diesel 500ppm',
+            'diesel_500':       'Diesel 500ppm',
+            'diesel':           'Diesel 50ppm',
         }
-
         return mapping.get(string_formatter, str(fuel_type).strip().title())
-    
+
+    @staticmethod
+    def convert_fueltype_number_to_fuel_type(norm_fuel_type: str) -> str:
+        fuel_string = norm_fuel_type.lower()
+        if '93' in fuel_string:
+            return 'petrol_93'
+        if '500' in fuel_string:
+            return 'diesel_500ppm'
+        if '50' in fuel_string:
+            return 'diesel_50ppm'
+        return 'petrol_95'
+    @
