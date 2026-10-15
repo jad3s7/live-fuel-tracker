@@ -86,16 +86,16 @@ class FuelExtractor:
             return self.generate_simulated_data()
 
         except requests.exceptions.RequestException as error:
-            print()
-            print()
-            return
+            print(f"Error fetching data from API: {error}")
+            print("Using simulated fuel data instead.")
+            return self.generate_simulated_data()
          
         except json.JSONDecodeError as error:
-            print()
-            print()
-            return
+            print(f"There was an error parsing the JSON response: {error}")
+            print("Using simulated fuel data instead.")
+            return self.generate_simulated_data()
 
         except Exception as error:
-            print()
-            print()
-            return
+            print(f"Unexpected error: {error}")
+            print("Using simulated fuel data instead.")
+            return self.generate_simulated_data()
