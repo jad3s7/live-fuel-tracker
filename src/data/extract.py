@@ -41,10 +41,25 @@ class FuelExtractor:
         fuel_types: list = ['petrol_95', 'petrol_93', 'diesel_50ppm', 'diesel_500ppm']
         self.api_provider = api_provider.lower() if api_provider else 'simulated' 
         self.api_key = api_key
-        self.base_url = base_url
+        self.base_url = base_url or self.get_base_url()
         self.fuel_types = fuel_types
         self.regions = ['inland', 'coastal']
+        
+        # Base fuel prices used, R/litre. 
+        self.base_prices = {
+            'petrol_95': {'inland': 22.95, 'coastal': 22.15},
+            'petrol_93': {'inland': 22.45, 'coastal': 21.65},
+            'diesel_50ppm': {'inland': 21.30, 'coastal': 20.50},
+            'diesel_500ppm': {'inland': 21.10, 'coastal': 20.30}
+        }
 
+    def get_base_url(self) -> str:
+        """
+        Get default base URL for the API provider
+        """
+        if self.api_provider == 'zaref': return 'https://zaref.dev/v1'
+        elif self.api_provider == 'fuelsa': return 'https://api.fuelsa.co.za/v1'
+        else: return ''
 
 
     def get_current_rate(self):
