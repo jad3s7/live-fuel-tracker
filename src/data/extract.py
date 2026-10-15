@@ -111,10 +111,12 @@ class FuelExtractor:
             url = f"{self.base_url}/fuel-prices"
             response = requests.get(url, timeout=10)
             
-            # zaref uses 402 for payment required
+            # zaref uses 402 for payment required / kinda like 401 but not.
             if response.status_code == 402:
                 print('zaref.dev requires payment. Using simulated data.')
                 return None
+            
+            # successfully requested
             elif response.status_code == 200:
                 data = response.json()
                 return self.parse_zaref_response()
@@ -126,7 +128,30 @@ class FuelExtractor:
             return None
 
     def fetch_data_from_fuelsa(self) -> dict:
-        ...
+        """
+        Fetches the current fuel prices from fuelsa API.
+
+        Returns:
+            Dict with parsed fuel pricess or None if API failed.
+        """
+        try:
+            url = f"{self.base_url}/current"
+            response = requests.get(url, timeout=10)
+
+            # successfully requested
+            if response.status_code == 200:
+                data = response.json()
+                return self.parse_fuelsa_response()
+            
+            #  Failed API request -> simulated data!
+            elif response.status_code == 401:
+                print("fuelsa authentication failed. Check API key.")
+                return None
+        except Exception as error:
+            print(f"Error fetching from fuelsa: {error}")
+            return None
+
+
 
     def parse_zaref_response(self) -> dict:
         ...
