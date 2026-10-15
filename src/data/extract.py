@@ -74,9 +74,9 @@ class FuelExtractor:
         try:
             # First attempt is to fetch data from real API based on provider used.
             if self.api_provider == 'zaref':
-                api_used: dict = self.fetch_from_zaref()
+                api_used: dict = self.fetch_data_from_zaref()
             elif self.api_provider == 'fuelsa':
-                api_used: dict = self.fetch_from_fuelsa()
+                api_used: dict = self.fetch_data_from_fuelsa()
 
             if api_used:
                 return api_used
@@ -99,3 +99,68 @@ class FuelExtractor:
             print(f"Unexpected error: {error}")
             print("Using simulated fuel data instead.")
             return self.generate_simulated_data()
+
+    def fetch_data_from_zaref(self) -> dict:
+        """
+        Fetches the current fuel prices from zaref API
+
+        Returns:
+            Dict with parsed fuel prices or None if it failed.
+        """
+        ...
+
+    def fetch_data_from_fuelsa(self) -> dict:
+        ...
+
+    def parse_zaref_response(self) -> dict:
+        ...
+
+    def parse_fuelsa_response(self) -> dict:
+        ...
+
+    def generate_simulated_data(self) -> dict:
+        """
+        Generates simulated fuel price data for demo.
+
+        Returns:
+            Dict with simulated fuel prices
+        """
+        simulated_data: dict = {
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'source': 'simulated',
+            'prices': {}
+        }
+
+        for fuel_type in self.fuel_types:
+            simulated_data['prices'][fuel_type] = {}
+            for region in self.regions:
+                base_price = self.base_prices[fuel_type][region]
+                simulated_data['prices'][fuel_type][region] = base_price
+
+        return simulated_data
+
+    @staticmethod
+    def normalize_fuel_type(fuel_type: str) -> str:
+        """
+        Ensures that all mapping of fuel types are found.
+        """
+        string_formatter = str(fuel_type).strip().lower().replace('-', '_').replace(' ', '_')
+
+        mapping = {
+            'petrol_95': 'Petrol 95',
+            'petrol95': 'Petrol 95',
+            '95': 'Petrol 95',
+            'petrol_93': 'Petrol 93',
+            'petrol93': 'Petrol 93',
+            '93': 'Petrol 93',
+            'diesel_50ppm': 'Diesel 50ppm',
+            'diesel50ppm': 'Diesel 50ppm',
+            'diesel_50': 'Diesel 50ppm',
+            'diesel_500ppm': 'Diesel 500ppm',
+            'diesel500ppm': 'Diesel 500ppm',
+            'diesel_500': 'Diesel 500ppm',
+            'diesel': 'Diesel 50ppm',
+        }
+
+        return mapping.get(string_formatter, str(fuel_type).strip().title())
+    
