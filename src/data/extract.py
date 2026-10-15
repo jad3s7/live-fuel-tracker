@@ -62,7 +62,7 @@ class FuelExtractor:
         else: return ''
 
 
-    def get_current_rate(self) -> None:
+    def get_current_prices(self) -> None:
         """
         Fetches the current SA fuel price.
         
@@ -164,8 +164,8 @@ class FuelExtractor:
         return mapping.get(string_formatter, str(fuel_type).strip().title())
 
     @staticmethod
-    def convert_fueltype_number_to_fuel_type(norm_fuel_type: str) -> str:
-        fuel_string = norm_fuel_type.lower()
+    def convert_fuel_number_to_fuel_type(normalize_fuel_type: str) -> str:
+        fuel_string = normalize_fuel_type.lower()
         if '93' in fuel_string:
             return 'petrol_93'
         if '500' in fuel_string:
@@ -173,6 +173,7 @@ class FuelExtractor:
         if '50' in fuel_string:
             return 'diesel_50ppm'
         return 'petrol_95'
+    
     @staticmethod
     def normalize_region(region: str) -> str:
         regional = str(region).strip().lower().replace('_', ' ')
@@ -186,3 +187,37 @@ class FuelExtractor:
             return 'Coastal'
         return 'Inland'
     
+    def get_fuel_price_by_type(self, fuel_type: str = 'Petrol 95', region: str = 'Coastal') -> dict:
+        """
+        Fetches the fuel price based on the fuel type and region.
+
+        Args:
+            fuel_type: Petrol 95, Petrol 93 etc.
+            region: inland or coastal
+
+        Returns:
+            Dict: Fuel price based on fuel type and region and other related fuel data.
+        """
+        normalized_fuel = self.normalize_fuel_type(fuel_type)
+        normalized_region = self.normalize_region(region)
+        raw_fuel = self.convert_fuel_number_to_fuel_type(normalized_fuel)
+        raw_region = normalized_region.lower()
+
+        all_prices = self.get_current_prices()
+
+        if all_prices and 'prices' in all_prices:
+            price = all_prices['prices'].get(raw_fuel, {}).get(raw_region)
+            if price is None:
+                price = self.base_prices.get(raw_fuel, {}.get(raw_region, 22.95))
+
+            return {
+            'fuel_type': normalized_fuel,
+            'location': normalized_region,
+            'region': normalized_region,
+            'price_per_litre': price,
+            'price': price,
+            'rate': price,
+            'timestamp': all_prices['timestamp'],
+            'source': all_prices.get('source', 'simulated'),
+        }
+        return None
