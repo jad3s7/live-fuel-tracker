@@ -1,5 +1,5 @@
 """
-Data Extraction Module
+Data Extraction file
 This module handles fetching South African fuel prices from external sources.
 It's the first step in the data engineering pipeline: Extract.
 
@@ -38,6 +38,7 @@ class FuelExtractor:
         - api_key: no needed (optional: API key for authentication)
         - base_url: Custom / optional base URL.
         """
+
         fuel_types: list = ['petrol_95', 'petrol_93', 'diesel_50ppm', 'diesel_500ppm']
         self.api_provider = api_provider.lower() if api_provider else 'simulated' 
         self.api_key = api_key
@@ -57,6 +58,7 @@ class FuelExtractor:
         """
         Get default base URL for the API provider
         """
+
         if self.api_provider == 'zaref': return 'https://zaref.dev/v1'
         elif self.api_provider == 'fuelsa': return 'https://api.fuelsa.co.za/v1'
         else: return ''
@@ -71,6 +73,7 @@ class FuelExtractor:
         
         Return None if API fails.
         """
+
         try:
             # First attempt is to fetch data from real API based on provider used.
             if self.api_provider == 'zaref':
@@ -78,27 +81,27 @@ class FuelExtractor:
             elif self.api_provider == 'fuelsa':
                 api_used: dict = self.fetch_data_from_fuelsa()
 
-            if api_used:
-                return api_used
+            if api_used: # type: ignore
+                return api_used # type: ignore
             else: 
                 print(f"API request failed for {self.api_provider}, will be using simulated data.")
 
-            return self.generate_simulated_data()
+            return self.generate_simulated_data() # type: ignore
 
         except requests.exceptions.RequestException as error:
             print(f"Error fetching data from API: {error}")
             print("Using simulated fuel data instead.")
-            return self.generate_simulated_data()
+            return self.generate_simulated_data() # type: ignore
          
         except json.JSONDecodeError as error:
             print(f"There was an error parsing the JSON response: {error}")
             print("Using simulated fuel data instead.")
-            return self.generate_simulated_data()
+            return self.generate_simulated_data() # type: ignore
 
         except Exception as error:
             print(f"Unexpected error: {error}")
             print("Using simulated fuel data instead.")
-            return self.generate_simulated_data()
+            return self.generate_simulated_data() # type: ignore
 
     def fetch_data_from_zaref(self) -> dict:
         """
@@ -107,6 +110,7 @@ class FuelExtractor:
         Returns:
             Dict with parsed fuel prices or None if it failed.
         """
+
         try:
             url = f"{self.base_url}/fuel-prices"
             response = requests.get(url, timeout=10)
@@ -114,20 +118,20 @@ class FuelExtractor:
             # zaref uses 402 for payment required / kinda like 401 but not.
             if response.status_code == 402:
                 print('zaref.dev requires payment. Using simulated data.')
-                return None
+                return None # type: ignore
             
             # successfully requested
             elif response.status_code == 200:
-                data = response.json()
-                return self.parse_zaref_response()
+                api_data = response.json()
+                return self.parse_zaref_response() # type: ignore
             else:
                 print(f"zaref API request failed with status code: {response.status_code}")
-                return None
+                return None # type: ignore
         except Exception as error:
             print(f"Error fetching API from zaref: {error}")
-            return None
+            return None # type: ignore
 
-    def fetch_data_from_fuelsa(self) -> dict:
+    def fetch_data_from_fuelsa(self) -> dict: # type: ignore
         """
         Fetches the current fuel prices from fuelsa API.
 
@@ -140,21 +144,70 @@ class FuelExtractor:
 
             # successfully requested
             if response.status_code == 200:
-                data = response.json()
+                api_data = response.json()
                 return self.parse_fuelsa_response()
             
             #  Failed API request -> simulated data!
             elif response.status_code == 401:
                 print("fuelsa authentication failed. Check API key.")
-                return None
+                return None # type: ignore
         except Exception as error:
             print(f"Error fetching from fuelsa: {error}")
-            return None
+            return None # type: ignore
 
 
 
-    def parse_zaref_response(self) -> dict:
-        ...
+    def parse_zaref_response(self, api_data: dict) -> dict:
+        """
+        Parse zaref API response.
+        
+        Args:
+            data: Raw API response from zaref
+
+        Returns:
+            Dict with cleaned fuel price format
+        """
+
+        try:
+            api_response = {
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'source': 'zaref',
+                'prices': {}
+            }
+
+            # zaref response structure per docs:
+            # { petrol_95_inland: 22.95 etc...}
+
+            # Map zaref response to format used here.
+            # eg: petrol_95, inland
+            mapping = {
+                'petrol_95_inland': ('petrol_95', 'inland'),
+                'petrol_95_coastal': ('petrol_95', 'coastal'),
+                'petrol_93_inland': ('petrol_93', 'inland'),
+                'petrol_93_coastal': ('petrol_93', 'coastal'),
+                'diesel_50ppm_inland': ('diesel_50ppm', 'inland'),
+                'diesel_50ppm_coastal': ('diesel_50ppm', 'coastal'),
+                'diesel_500ppm_inland': ('diesel_500ppm', 'inland'),
+                'diesel_500ppm_coastal': ('diesel_500ppm', 'coastal')
+            }
+
+            for api_field, (fuel_type, region) in mapping.items():
+                if api_field in api_data:
+                    if fuel_type not in api_response['prices']:
+                        api_response['prices'][fuel_type] = {}
+                    api_response['prices'][fuel_type][region] = float(api_response[api_field])
+
+
+            # if no data is parsed: use default structure
+            if not api_response['prices']:
+                if 'petrol' in api_response:
+                    for fuel in api_response.get('petrol', {}):
+                        pass
+            return api_response if api_response['prices'] else None # type: ignore
+       
+        except Exception as error:
+            print(f"Error parsing zaref API response: {error}")
+            return None # type: ignore
 
     def parse_fuelsa_response(self) -> dict:
         ...
@@ -166,6 +219,7 @@ class FuelExtractor:
         Returns:
             Dict with simulated fuel prices
         """
+
         simulated_data: dict = {
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'source': 'simulated',
@@ -262,3 +316,9 @@ class FuelExtractor:
             'source': all_prices.get('source', 'simulated'),
         }
         return None
+
+    def get_fuel_price_comparison(self):
+        ... # type: ignore
+
+    def get_historical_fuel_data(self, days):
+        ... # type: ignore
