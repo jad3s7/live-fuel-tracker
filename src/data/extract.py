@@ -266,9 +266,10 @@ class FuelExtractor:
                             api_result['prices'][fuel_type]['coastal'] = float(coastal_price)
 
             return api_result if api_result['prices'] else None # type: ignore
-    
-    
-    
+        
+        except Exception as error:
+            print(f"Error parsing fuelsa api response: {error}")
+            return None #type: ignore
     
     
     def generate_simulated_data(self) -> dict:
