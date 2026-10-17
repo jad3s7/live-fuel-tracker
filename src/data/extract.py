@@ -421,13 +421,59 @@ class FuelExtractor:
         return historical_data
 
 
-    # def get_fuel_price_comparison(self) -> dict:
-    #     """
-    #     Returns a comparison of fuel prices across different fuel types and regions
+    def get_fuel_price_comparison(self) -> dict:
+        """
+        Returns a comparison of fuel prices across different fuel types and regions
 
-    #     Returns:
-    #         Dict: price comparison data including different regions.
-    #     """
+        Returns:
+            Dict: price comparison data including different regions.
+        """
 
-    #     current_data = self.get_current_prices()
+        current_data = self.get_current_prices()
+        if not current_data or 'prices' not in current_data:
+            return {}
 
+        comparison = {
+            'timestamp': current_data['timestamp'],
+            'source': current_data['source'],
+            'prices': current_data['prices'],
+            'regional_differences': {},
+            'cheapest_fuel': None,
+            'most_expensive_fuel': None,
+        }
+
+        all_prices = []
+
+        for fuel_type in self.fuel_types:
+            inland_price = current_data['prices'][fuel_type]['inland']
+            coastal_price = current_data['prices'][fuel_type]['coastal']
+
+            difference_in_fuel_price = round(inland_price - coastal_price, 2)
+            comparison['regional_differences'][fuel_type] = {
+                'inland': inland_price,
+                'coastal': coastal_price,
+                'difference': difference_in_fuel_price
+            }
+            all_prices.append({
+                'fuel_type': fuel_type,
+                'inland': inland_price,
+                'coastal': coastal_price
+            })
+
+        # Find cheapest and most expensive fuel (using inland prices as example)
+        cheapest_fuel = all_prices[0]
+        most_expensive_fuel = all_prices[0]
+
+        for price in all_prices:
+            if price['inland'] < cheapest_fuel['inland']:
+                cheapest_fuel = price
+            if price['inland'] > most_expensive_fuel['inland']:
+                most_expensive_fuel = price
+
+        most_expensive_fuel['cheapest_fuel'] = cheapest_fuel['fuel_type']
+        comparison['most_expensive_fuel'] = most_expensive_fuel['fuel_type']
+        
+        return comparison
+
+if __name__ == '__main__':
+    extraction = FuelExtractor()
