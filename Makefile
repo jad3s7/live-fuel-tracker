@@ -8,12 +8,11 @@ RED := \033[0;31m
 NC := \033[0m
 
 help:
-	@echo "$(BLUE) LIVE FUEL TRACKER (SOUTH AFRICA MYRBU!) - Available Commands:$(NC)"
+	@echo "$(BLUE)LIVE FUEL TRACKER FOR SOUTH AFRICA - Available Commands:$(NC)"
 	@echo ""
 	@echo "$(GREEN)Development Commands:$(NC)"
 	@echo " make install			- Install Python dependencies"
 	@echo " make test				- Run pytest tests"
-
 
 install:
 	@echo "$(BLUE)Installing Project dependencies ...$(NC)"
@@ -22,5 +21,5 @@ install:
 
 test:
 	@echo "$(BLUE)Running tests ...$(BLUE)"
-	$(PYTHON) -m pytest tests/ -v
+	$(PYTHON) -m pytest tests/ -vv
 	@echo "$(GREEN)Test completed.$(GREEN)"

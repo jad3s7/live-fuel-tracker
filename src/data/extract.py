@@ -169,7 +169,7 @@ class FuelExtractor:
         """
 
         try:
-            api_response = {
+            api_result = {
                 'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 'source': 'zaref',
                 'prices': {}
@@ -193,15 +193,15 @@ class FuelExtractor:
 
             for api_field, (fuel_type, region) in mapping.items():
                 if api_field in api_data:
-                    if fuel_type not in api_response['prices']:
-                        api_response['prices'][fuel_type] = {}
-                    api_response['prices'][fuel_type][region] = float(api_response[api_field])
+                    if fuel_type not in api_result['prices']:
+                        api_result['prices'][fuel_type] = {}
+                    api_result['prices'][fuel_type][region] = float(api_result[api_field])
 
 
             # if no data is parsed: use default structure
-            if not api_response['prices']:
-                if 'petrol' in api_response:
-                    for fuel in api_response.get('petrol', {}):
+            if not api_result['prices']:
+                if 'petrol' in api_result:
+                    for fuel in api_result.get('petrol', {}):
                         pass
             return api_response if api_response['prices'] else None # type: ignore
        
@@ -209,9 +209,68 @@ class FuelExtractor:
             print(f"Error parsing zaref API response: {error}")
             return None # type: ignore
 
-    def parse_fuelsa_response(self) -> dict:
-        ...
+    def parse_fuelsa_response(self, api_data: dict) -> dict:
+        """
+        Parse API response from API provider: fuelsa
+        
+        Args:
+            api_data: raw api response from fuelsa.co.za (api provider)
 
+        Returns:
+            Dict with fuel price format (default)
+        """
+        try:
+            api_result = {
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'source': 'fuelsa',
+                'prices': {}
+            }
+
+            # Attempt to parse common fuelsa api-result-structure for petrol
+            # fuel type, region and prices added to api_result
+            if 'petrol' in api_data:
+                petrol_data = api_data['petrol']
+                for fuel_grade in ['95', '93']:
+                    if fuel_grade in petrol_data:
+                        fuel_grade_data = petrol_data[fuel_grade]
+                        fuel_type = f"petrol_{fuel_grade_data}"
+                        # petrol_95 or  petrol_93
+                        api_result['prices'][fuel_type] = {}
+
+                        # region logic for inland and coastal prices
+                        if 'inland' in fuel_grade_data:
+                            inland_price = fuel_grade_data.get('inland')
+                            api_result['prices'][fuel_type]['inland'] = float(inland_price)
+
+                        if 'coastal' in fuel_grade_data or 'coast' in fuel_grade_data:
+                            coastal_price = fuel_grade_data.get('coastal', fuel_grade_data.get('coast'))
+                            api_result['prices'][fuel_type][coastal_price] = float(coastal_price)
+
+            # 
+            # Attempt to parse common fuelsa api-result-structure for diesel
+            # fuel type, region and prices added to api_result
+            if 'diesel' in api_data:
+                diesel_data = api_data['diesel']
+                for ppm in ['50ppm','500ppm', '50_ppm','500_ppm']:
+                    if ppm in diesel_data:
+                        diesel_grade_data = diesel_data['ppm']
+                        fuel_type = f"diesel_{ppm.replace("_", "")}"
+                        api_result['prices'][fuel_type] = {}
+
+                        if 'inland' in diesel_grade_data:
+                            inland_price = diesel_grade_data.get('inland')
+                            api_result['prices'][fuel_type]['inland'] = float(inland_price)
+
+                        if 'coastal' in diesel_grade_data or 'coast' in diesel_grade_data:
+                            coastal_price = diesel_grade_data.get('coastal', diesel_grade_data.get('coast'))
+                            api_result['prices'][fuel_type]['coastal'] = float(coastal_price)
+
+            return api_result if api_result['prices'] else None # type: ignore
+    
+    
+    
+    
+    
     def generate_simulated_data(self) -> dict:
         """
         Generates simulated fuel price data for demo.
