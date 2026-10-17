@@ -497,7 +497,7 @@ if __name__ == '__main__':
     if current_data:
         print("\n=== Current Fuel Prices ===")
         print(f"Timestamp: {current_data['timestamp']}")
-        print(f"Source: {current_data['source']}")
+        print(f"Source: {current_data['source']}, API unavailable.")
         print("\nPrices (R/litre):")
         for fuel_type, prices in current_data['prices'].items():
             print(f"  {fuel_type}:")
@@ -507,11 +507,37 @@ if __name__ == '__main__':
         print("Failed to fetch current fuel prices")
     
     print("\n" + "="*50)
-    print("Fetching specific fuel price (Petrol 95 - Inland)...")
-    specific_price = extraction.get_fuel_price_by_type('petrol_95', 'inland')
-    if specific_price:
-        print(f"Price: R{specific_price['price']}/litre")
-        print(f"Timestamp: {specific_price['timestamp']}")
+    
+    print("Fetching specific fuel price")
+    specific_price_95 = extraction.get_fuel_price_by_type('petrol_95', 'inland')
+    # fetching petrol 95
+    if specific_price_95:
+        print("=== Petrol 95 ===")
+        print(f"Price: R{specific_price_95['price']}/litre")
+        print(f"Timestamp: {specific_price_95['timestamp']}")
+
+    # fetching petrol 93
+    specific_price_93 = extraction.get_fuel_price_by_type("petrol_93", "Inland")
+    if specific_price_93:
+        print("\n=== Petrol 93 ===")
+        print(f"Price: R{specific_price_93['price']}/litre")
+        print(f"Timestamp: {specific_price_93['timestamp']}")
+
+     
+    # fetching diesel 50ppm
+    specific_price_50 = extraction.get_fuel_price_by_type("diesel_50ppm", "Inland")
+    if specific_price_93:
+        print("\n=== Diesel 50ppm ===")
+        print(f"Price: R{specific_price_93['price']}/litre")
+        print(f"Timestamp: {specific_price_93['timestamp']}")
+
+
+    # fetching diesel 50ppm
+    specific_price_500ppm = extraction.get_fuel_price_by_type('diesel_500ppm', 'inland')
+    if specific_price_500ppm:
+        print("\n=== Diesel 50ppm ===")
+        print(f"Price: R{specific_price_500ppm['price']}/litre")
+        print(f"Timestamp: {specific_price_500ppm['timestamp']}")
     
     print("\n" + "="*50)
     print("Fetching price comparison...")
