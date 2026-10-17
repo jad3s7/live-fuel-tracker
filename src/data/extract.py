@@ -145,7 +145,7 @@ class FuelExtractor:
             # successfully requested
             if response.status_code == 200:
                 api_data = response.json()
-                return self.parse_fuelsa_response()
+                return api_data
             
             #  Failed API request -> simulated data!
             elif response.status_code == 401:
@@ -271,7 +271,6 @@ class FuelExtractor:
             print(f"Error parsing fuelsa api response: {error}")
             return None #type: ignore
     
-    
     def generate_simulated_data(self) -> dict:
         """
         Generates simulated fuel price data for demo.
@@ -377,8 +376,58 @@ class FuelExtractor:
         }
         return None
 
-    def get_fuel_price_comparison(self):
-        ... # type: ignore
+    def get_historical_fuel_data(self, days: int = 30, fuel_type: str = "Petrol 95", location: str = 'Inland') -> list:
+        """
+        Fetches historical fuel price data for the amount days specified.
 
-    def get_historical_fuel_data(self, days):
-        ... # type: ignore
+        Args:
+            days: amount of days for historical data to be fetched (default: 30 days)
+            fuel_type: optional, use diesel 50ppm etc (default: Petrol 95)
+            region: Inland or Coastal
+
+        Returns:
+            List of dicts containing historical fuel price data.
+        """
+
+        if days <= 0:
+            return []
+
+        normalize_fuel_type = self.normalize_fuel_type(fuel_type)
+        normalize_region = self.normalize_region(location)
+        raw_fuel = self.convert_fuel_number_to_fuel_type(normalize_fuel_type)
+        raw_region = normalize_region.lower()
+        base_price = self.base_prices[raw_fuel][raw_region]
+
+        historical_data = []
+        for day in range(days):
+            timestamp = datetime.now() - timedelta(days=days - day)
+            price = base_price
+            day_data = {
+                'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                'fuel_type': normalize_fuel_type,
+                'location': normalize_region,
+                'region': normalize_region,
+                'price_per_liter': price,
+                'price': price,
+                'rate': price,
+                'source': 'simulated',
+            }
+            for fueltype in self.fuel_types:
+                for reg in self.regions:
+                    b_price = self.base_prices[fuel_type][reg]
+                    day_data[f"{fuel_type}_{reg}"] = b_price
+
+            historical_data.append(day_data)
+        return historical_data
+
+
+    # def get_fuel_price_comparison(self) -> dict:
+    #     """
+    #     Returns a comparison of fuel prices across different fuel types and regions
+
+    #     Returns:
+    #         Dict: price comparison data including different regions.
+    #     """
+
+    #     current_data = self.get_current_prices()
+

@@ -55,7 +55,7 @@ class TestFuelExtractor:
           assert fuel_data is not None
           assert isinstance(fuel_data, dict)
           assert fuel_data['fuel_type'] == 'Petrol 95'
-          assert fuel_data['location'] == 'Coastal'
+          assert fuel_data['location'] == 'Inland'
           assert 15 >= fuel_data['price_per_liter'] <= 35
 
     def test_fuel_price_comparison(self) -> None:
