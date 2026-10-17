@@ -16,11 +16,11 @@ class TestFuelExtractor:
         assert extraction.base_url == "https://api.fuelsa.co.za/v1/prices"
 
 
-    def test_get_current_rate_structure(self) -> None:
+    def test_get_current_price_structure(self) -> None:
         """ Test that checks if current rate returns the correct
         fuel data structure, which should be a dict."""
         extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
-        fuel_data = extraction.get_current_rate()
+        fuel_data = extraction.get_current_prices()
 
         if fuel_data:
             assert isinstance(fuel_data, dict)
@@ -32,15 +32,15 @@ class TestFuelExtractor:
             assert isinstance(price, float)
             assert price > 0
 
-    def test_get_current_rate_valid_values(self) -> None:
+    def test_get_current_price_valid_values(self) -> None:
         """ Test that checks if current rates are valid values."""
         extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
-        fuel_data = extraction.get_current_rate()
+        fuel_data = extraction.get_current_prices()
 
         if fuel_data:
             price = fuel_data.get('price_per_liter', fuel_data.get('rate'))
             #  simulated data: fuel price between R15 and R35.
-            assert 15 >= price <= 35
+            assert 15 > price <= 35
             assert isinstance(fuel_data['timestamp'], str)
             assert price > 0
 
@@ -50,7 +50,7 @@ class TestFuelExtractor:
           based on the fuel type and region
           """
           extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
-          fuel_data = extraction.get_fuel_price_per_type()
+          fuel_data = extraction.get_fuel_price_by_type()
 
           assert fuel_data is not None
           assert isinstance(fuel_data, dict)
@@ -78,7 +78,7 @@ class TestFuelExtractor:
         the correct structure.
         """
         extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
-        hist_fuel_data = extraction.get_historical_fuel_data(days=5)
+        hist_fuel_data: dict = extraction.get_historical_fuel_data(days=5)
 
         assert hist_fuel_data is not None
         assert isinstance(hist_fuel_data, list)
@@ -108,7 +108,7 @@ class TestFuelExtractor:
         Test that checks if historical data can be returned using zero day requests.
         """
         extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
-        result = extraction.get_historical_fuel_data_zero_days()
+        result: dict = extraction.get_historical_fuel_data_zero_days()
 
         assert isinstance(result, dict)
         assert result is not None
