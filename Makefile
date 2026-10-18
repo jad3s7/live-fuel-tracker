@@ -22,12 +22,12 @@ install:
 
 # Run tests
 test:
-	@echo "$(BLUE)Running tests ...$(BLUE)"
+	@echo "$(BLUE)Running tests...$(BLUE)"
 	$(PYTHON) -m pytest tests/ -vv
-	@echo "$(GREEN)Test completed.$(GREEN)"
+	@echo "$(GREEN)Test completed!$(GREEN)"
 
 # Run tests with verbose output
 test-verbose:
 	@echo "$(BLUE)Running tests with verbose output...$(NC)"
 	$(PYTHON) -m pytest tests/ -vv --tb=short
-	@echo "$(GREEN)Test completed$(NC)"
+	@echo "$(GREEN)Test completed!$(NC)"

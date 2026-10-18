@@ -14,6 +14,7 @@ import json
 import random
 from datetime import datetime, timedelta
 
+
 class FuelExtractor:
     """
     A class to extract South African fuel price data from APIs.
