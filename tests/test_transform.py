@@ -150,8 +150,13 @@ class TestDataTransformer:
         assert 'price_per_liter' in dataframe.columns
         assert 'timestamp' in dataframe.columns
 
-    # def test_transform_to_dataframe_empty(self, transformer ):
-    #     pass
+    def test_transform_empty_data_to_dataframe(self, transformer):
+        """ Test transformation of empty list of dicts to Dataframe."""
+        dataframe = transformer._transform_to_dataframe([])
+        assert isinstance(dataframe, pd.DataFrame)
+        assert len(dataframe) == 0
+        assert 'price_per_liter' not in dataframe.columns
+    
 
     # def test_add_moving_average(self, transformer):
     #     pass
