@@ -16,35 +16,33 @@ class DataTransformer:
         This initializes the DataTransformer.
         """
         self.valid_fuel_types: list = [
-            'Petrol 95',
-            'Petrol 93',
-            'Diesel 50ppm',
-            'Diesel 500ppm'
+            'Petrol 95', 'Petrol 93', 'Diesel 50ppm', 'Diesel 500ppm', 'Diesel 10ppm', 'Diesel', 'Illuminating Paraffin'
         ]
         self.valid_locations: list = [
             'Inland', 'Coastal', 'Gauteng', 'KwaZulu-Natal', 'Western Cape',
-            'Eastern Cape', 'Limpopo', 'Mpumalanga', 'North West', 'Free State',
-            'Northern Cape'
+            'Eastern Cape', 'Limpopo', 'Mpumalanga', 'North West', 'Free State', 'Northern Cape'
         ]
-
     def _normalize_fuel_type(self, fuel_type: str):
 
         if not fuel_type:
             return None
         norm_fuel = str(fuel_type).strip().lower().replace('-','_').replace(' ', '_')
         fuel_mapping = {
-            'petrol_95':        'Petrol 95',
-            'petrol95':         'Petrol 95',
-            '95':               'Petrol 95',
-            'petrol_93':        'Petrol 93',
-            'petrol93':         'Petrol 93',
-            '93':               'Petrol 93',
-            'diesel_50ppm':     'Diesel 50ppm',
-            'diesel50ppm':      'Diesel 50ppm',
-            'diesel_50':        'Diesel 50ppm',
-            'diesel_500ppm':    'Diesel 500ppm',
-            'diesel500ppm':     'Diesel 500ppm',
-            'diesel_500':       'Diesel 500ppm',
+            'petrol_95': 'Petrol 95',
+            'petrol95': 'Petrol 95',
+            '95': 'Petrol 95',
+            'petrol_93': 'Petrol 93',
+            'petrol93': 'Petrol 93',
+            '93': 'Petrol 93',
+            'diesel_50ppm': 'Diesel 50ppm',
+            'diesel50ppm': 'Diesel 50ppm',
+            'diesel_50': 'Diesel 50ppm',
+            'diesel_500ppm': 'Diesel 500ppm',
+            'diesel500ppm': 'Diesel 500ppm',
+            'diesel_500': 'Diesel 500ppm',
+            'diesel_10ppm': 'Diesel 10ppm',
+            'diesel': 'Diesel',
+            'illuminating_paraffin': 'Illuminating Paraffin',
         }
         for valid_fuel_type in self.valid_fuel_types:
             if valid_fuel_type.lower() == str(fuel_type).strip().lower():
@@ -60,7 +58,7 @@ class DataTransformer:
                 return valid_loc
         return None
 
-    def clean_the_price_data(self, raw_data: dict):
+    def _clean_price_data_valid(self, raw_data: dict):
         """"
         Cleans and validates a single fuel price data point.
         Checks for missing values, invalid data types and out of range prices.
@@ -114,4 +112,59 @@ class DataTransformer:
                 print(f"Invalid location: {raw_loc}")
                 return None
 
-            
+            # Clean timestamp data
+            raw_timestamp = raw_data.get('timestamp')
+            if raw_timestamp is None:
+                print(f"Required missing field: timestamp")
+                return None
+            timestamp = self._clean_timestamp(raw_timestamp)
+            if not timestamp:
+                return None
+
+
+            source = raw_data.get('source', 'DMRE')
+
+            cleaned_data = {
+                'price_per_litre': round(price, 3),
+                'rate': round(price, 3),
+                'price': round(price, 3),
+                'timestamp': timestamp,
+                'fuel_type': norm_fuel,
+                'location': norm_loc,
+                'region': norm_loc,
+                'source': source, 
+            }
+            return cleaned_data
+        except (ValueError, TypeError) as error:
+            print(f"Error cleaning data: {error}")
+            return None
+
+    def _clean_timestamp(self, timestamp: str):
+        """
+        Clean the timestamp format.
+
+        Args:
+            timestamp: raw timestamp string or should be a datetime object.
+
+        Returns:
+            Cleaned timestamp string or None if invalid
+        """   
+        try:
+            if isinstance(timestamp, str):
+                date_formats = [
+                    '%Y-%m-%d %H:%M:%S',
+                    '%Y-%m-%d',
+                    '%d/%m/%Y %H:%M:%S',
+                    '%d/%m/%Y'
+                ]
+                for format in date_formats:
+                    try:
+                        dt = datetime.strptime(timestamp.strip(), format)
+                        return dt.strftime('%Y-%m-%d %H:%M:%S')
+                    except ValueError:
+                        continue
+            elif isinstance(timestamp,datetime):
+                return timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        except Exception as error:
+            print(f"Error cleaning timestamp: {error}")
+        return None
