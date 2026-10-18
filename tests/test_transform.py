@@ -16,4 +16,58 @@ class TestDataTransformer:
         return DataTransformer()
     
 
-    
+    def test_transformer_initialization(self, transformer):
+        """ Test that checks if transformer can be initialized."""
+        assert transformer is not None
+        assert 'Petrol 95' in transformer.valid_fuel_types
+        assert 'Petrol 93' in transformer.valid_fuel_types
+        assert 'Diesel 500ppm' in transformer.valid_fuel_types
+        assert 'Diesel 50ppm' in transformer.valid_fuel_types
+        assert 'Inland' in transformer.valid_locations
+        assert 'Coastal' in transformer.valid_locations
+        assert 'Eastern Cape' in transformer.valid_locations
+        assert 'Western Cape' in transformer.valid_locations
+
+
+    def test_clean_price_data_valid_price(self, transformer):
+        pass
+
+    def test_clean_price_data_invalid_price(self, transformer):
+        pass
+
+    def test_clean_price_data_missing(self, transformer):
+        pass
+
+    def test_clean_price_data_invalid_fuel_type(self, transformer):
+        pass
+
+    def test_clean_price_data_invalid_location(self, transformer):
+        pass
+
+    def test_clean_price_data_case_sensitive(self, transformer):
+        pass
+
+    def test_transform_data_to_dataframe(self, transformer):
+        pass
+
+    def test_transform_to_dataframe_empty(self, transformer ):
+        pass
+
+    def test_add_moving_average(self, transformer):
+        pass
+
+    def test_add_rate_change(self, transformer):
+        pass
+
+    def test_detect_outliers(self, transformer):
+        pass
+
+    def test_aggregate_data(self, transformer):
+        pass
+
+    def test_validate_data_quality(self, transformer):
+        pass
+
+
+    if __name__ == "__main__":
+        pytest.main([__file__, "-vv"])
