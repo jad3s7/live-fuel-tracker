@@ -118,8 +118,37 @@ class TestDataTransformer:
         assert result['fuel_type'] == 'Petrol 95'
         assert result['location'] == 'Gauteng'
 
-    # def test_transform_data_to_dataframe(self, transformer):
-    #     pass
+    def test_transform_data_to_dataframe(self, transformer):
+        """ Test transforming the list of dictionaries to Dataframe."""
+        data_list = [
+              {
+                'price_per_liter': 22.95,
+                'timestamp': '2026-09-21 10:00:00',
+                'fuel_type': 'Petrol 95',
+                'location': 'Inland',
+                'source': 'DMRE'
+            },
+            {
+                'price_per_liter': 22.45,
+                'timestamp': '2026-09-21 11:00:00',
+                'fuel_type': 'Petrol 93',
+                'location': 'Inland',
+                'source': 'DMRE'
+            },
+            {
+                'price_per_liter': 21.30,
+                'timestamp': '2026-09-21 12:00:00',
+                'fuel_type': 'Diesel 50ppm',
+                'location': 'Inland',
+                'source': 'DMRE'
+            }
+        ]
+
+        dataframe = transformer._transform_to_dataframe(data_list)
+        assert isinstance(dataframe, pd.DataFrame)
+        assert len(dataframe) == 3
+        assert 'price_per_liter' in dataframe.columns
+        assert 'timestamp' in dataframe.columns
 
     # def test_transform_to_dataframe_empty(self, transformer ):
     #     pass

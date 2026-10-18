@@ -197,17 +197,17 @@ class DataTransformer:
 
                 dataframe['timestamp'] = pd.to_datetime(dataframe['timestamp'], errors='coerce')
 
-                # Drop missing values
-                valid_subset = []
-                for col in ['price_per_litre', 'timestamp']:
-                    if col in dataframe.columns:
-                        valid_subset.append(col)
-                dataframe = dataframe.dropna(subset=valid_subset)
+            # Drop missing values
+            valid_subset = []
+            for col in ['price_per_litre', 'timestamp']:
+                if col in dataframe.columns:
+                    valid_subset.append(col)
+            dataframe = dataframe.dropna(subset=valid_subset)
 
-                dataframe = dataframe.sort_values('timestamp')
-                dataframe  = dataframe.reset_index(drop=True)
+            dataframe = dataframe.sort_values('timestamp')
+            dataframe  = dataframe.reset_index(drop=True)
 
-                return dataframe
+            return dataframe
         except Exception as error:
             print(f"Error transforming the list of dicts to Dataframe: {error}")
             return pd.DataFrame()
