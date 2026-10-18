@@ -158,8 +158,33 @@ class TestDataTransformer:
         assert 'price_per_liter' not in dataframe.columns
     
 
-    # def test_add_moving_average(self, transformer):
-    #     pass
+    def test_add_moving_averages(self, transformer):
+        """ Test that checks for adding movnig average to Dataframe."""
+        data_list = [
+            {
+                'price_per_liter': 22.95,
+                'timestamp': '2026-09-21 10:00:00',
+                'fuel_type': 'Petrol 95',
+                'location': 'Inland'
+            },
+            {
+                'price_per_liter': 23.05,
+                'timestamp': '2026-09-21 11:00:00',
+                'fuel_type': 'Petrol 95',
+                'location': 'Inland'
+            },
+            {
+                'price_per_liter': 22.85,
+                'timestamp': '2026-09-21 12:00:00',
+                'fuel_type': 'Petrol 95',
+                'location': 'Inland'
+            }
+        ]
+
+        dataframe = transformer._transform_to_dataframe(data_list)
+        dataframe = transformer._add_moving_average(dataframe, window=2)
+        
+        assert 'moving_avg_2' in dataframe.columns
 
     # def test_add_rate_change(self, transformer):
     #     pass
@@ -175,4 +200,4 @@ class TestDataTransformer:
     
 
     if __name__ == "__main__":
-        pytest.main([__file__, "-vv"])
+        pytest.main([__file__, "-v"])
