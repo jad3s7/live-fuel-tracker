@@ -80,14 +80,43 @@ class TestDataTransformer:
         result = transformer._clean_price_data_valid(missing_fields)
         assert result is None
 
-    # def test_clean_price_data_invalid_fuel_type(self, transformer):
-    #     pass
+    def test_clean_price_data_invalid_fuel_type(self, transformer):
+        """ Test that checks cleaning data with invalid fuel type. """
+        invalid_fuel_type = {
+            'price_per_litre': 22.95,
+            'timestamp': '2026-09-21 10:00:00',
+            'fuel_type': 'RocketFuel',
+            'location': 'Gauteng',
+            'source': 'DMRE',
+        }
+        result = transformer._clean_price_data_valid(invalid_fuel_type)
+        assert result is None
 
-    # def test_clean_price_data_invalid_location(self, transformer):
-    #     pass
+    def test_clean_rate_data_invalid_location(self, transformer):
+        """Test cleaning data with invalid location."""
+        invalid_loc = {
+            'price_per_liter': 22.95,
+            'timestamp': '2026-09-21 10:00:00',
+            'fuel_type': 'Petrol 95',
+            'location': 'Mars',
+            'source': 'DMRE'
+        }
+        result = transformer.clean_the_rate_data(invalid_loc)
+        assert result is None
 
-    # def test_clean_price_data_case_sensitive(self, transformer):
-    #     pass
+    def test_clean_price_data_case_insensitive(self, transformer):
+        """Test that checks if the fuel price data is case insensitive."""
+        data_insensitive = {
+            'price_per_litre': 22.95,
+            'timestamp': '2026-09-21 10:00:00',
+            'fuel_type': 'petrol 95',
+            'location': 'gauteng',
+            'source': 'DRME' 
+        }
+        result = transformer._clean_price_data_valid(data_insensitive)
+        assert result is not None
+        assert result['fuel_type'] == 'Petrol 95'
+        assert result['location'] == 'Gauteng'
 
     # def test_transform_data_to_dataframe(self, transformer):
     #     pass
@@ -109,7 +138,7 @@ class TestDataTransformer:
 
     # def test_validate_data_quality(self, transformer):
     #     pass
-
+    
 
     if __name__ == "__main__":
         pytest.main([__file__, "-vv"])
