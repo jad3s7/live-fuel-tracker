@@ -532,7 +532,7 @@ if __name__ == '__main__':
         print(f"Timestamp: {specific_price_93['timestamp']}")
 
 
-    # fetching diesel 50ppm
+    # fetching diesel 500ppm
     specific_price_500ppm = extraction.get_fuel_price_by_type('diesel_500ppm', 'inland')
     if specific_price_500ppm:
         print("\n=== Diesel 50ppm ===")
