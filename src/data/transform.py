@@ -168,3 +168,49 @@ class DataTransformer:
         except Exception as error:
             print(f"Error cleaning timestamp: {error}")
         return None
+
+    def _transform_to_dataframe(self, data_list: list) -> pd.DataFrame:
+        """ 
+        Takes a list of dictionaries and creates a pandas Dataframe with it.
+        
+        Args:
+            data_list: List of dicts.
+
+        Returns:
+            pandas Dataframe with data.    
+        """
+        if not data_list:
+            return pd.DataFrame()
+
+        try:
+            dataframe = pd.DataFrame(data_list)
+
+            # Ensure there isa price column in the df.
+            if 'price_per_litre' in dataframe.columns:
+                dataframe['price_per_litre'] = pd.to_numeric(dataframe['price_per_litre'], errors="coerce")
+
+                if 'rate' not in dataframe.columns:
+                    dataframe['rate'] = dataframe['price_per_litre']
+                elif 'rate' in dataframe.columns:
+                    dataframe['rate'] = pd.to_numeric(dataframe['rate'], errors="coerce")
+                    dataframe['price_per_litre'] = dataframe['rate']
+
+                dataframe['timestamp'] = pd.to_datetime(dataframe['timestamp'], errors='coerce')
+
+                # Drop missing values
+                valid_subset = []
+                for col in ['price_per_litre', 'timestamp']:
+                    if col in dataframe.columns:
+                        valid_subset.append(col)
+                dataframe = dataframe.dropna(subset=valid_subset)
+
+                dataframe = dataframe.sort_values('timestamp')
+                dataframe  = dataframe.reset_index(drop=True)
+
+                return dataframe
+        except Exception as error:
+            print(f"Error transforming the list of dicts to Dataframe: {error}")
+            return pd.DataFrame()
+
+
+    

@@ -101,7 +101,7 @@ class TestDataTransformer:
             'location': 'Mars',
             'source': 'DMRE'
         }
-        result = transformer.clean_the_rate_data(invalid_loc)
+        result = transformer._clean_price_data_valid(invalid_loc)
         assert result is None
 
     def test_clean_price_data_case_insensitive(self, transformer):
