@@ -29,44 +29,86 @@ class TestDataTransformer:
         assert 'Western Cape' in transformer.valid_locations
 
 
-    def test_clean_price_data_valid_price(self, transformer):
-        pass
+    def test_clean_price_data_valid(self, transformer):
+        """
+        Test that checks for if cleaning of fuel price data is valid.
+        """
+        valid_fuel_data = {
+            'price_per_litre': 22.95,
+            'timestamp': '2026-09-21 10:00:00',
+            'fuel_type': 'Petrol 95',
+            'location': 'Gauteng',
+            'source': 'DMRE',
+        }
 
-    def test_clean_price_data_invalid_price(self, transformer):
-        pass
+        result = transformer._clean_price_data_valid(valid_fuel_data)
+
+        assert result is not None
+        assert result['price_per_litre'] == 22.95
+        assert result['fuel_type'] == 'Petrol 95'
+        assert result['location'] == 'Gauteng'
+
+        
+    def test_clean_price_data_invalid(self, transformer):
+        """Test cleaning data with invalid prices, -ve price, out of range prices."""
+        invalid_fuel_data = {
+            'price_per_litre': -5,
+            'timestamp': '2026-09-21 10:00:00',
+            'fuel_type': 'Petrol 95',
+            'location': 'Gauteng',
+            'source': 'DMRE',
+        }
+        result = transformer._clean_price_data_valid(invalid_fuel_data)
+        assert result is None
+
+        price_out_range = {
+            'price_per_litre': 120.0,
+            'timestamp': '2026-09-21 10:00:00',
+            'fuel_type': 'Petrol 95',
+            'location': 'Gauteng',
+            'source': 'DMRE',
+        }
+        assert transformer._clean_price_data_valid(price_out_range) is None
 
     def test_clean_price_data_missing(self, transformer):
-        pass
+        """ Test that checks cleaning of data with missing fields."""
+        missing_fields = {
+            'price_per_litre': 22.95,
+            'timestamp': '2026-09-21 10:00:00'
+            # fuel_type and location missing
+        }
+        result = transformer._clean_price_data_valid(missing_fields)
+        assert result is None
 
-    def test_clean_price_data_invalid_fuel_type(self, transformer):
-        pass
+    # def test_clean_price_data_invalid_fuel_type(self, transformer):
+    #     pass
 
-    def test_clean_price_data_invalid_location(self, transformer):
-        pass
+    # def test_clean_price_data_invalid_location(self, transformer):
+    #     pass
 
-    def test_clean_price_data_case_sensitive(self, transformer):
-        pass
+    # def test_clean_price_data_case_sensitive(self, transformer):
+    #     pass
 
-    def test_transform_data_to_dataframe(self, transformer):
-        pass
+    # def test_transform_data_to_dataframe(self, transformer):
+    #     pass
 
-    def test_transform_to_dataframe_empty(self, transformer ):
-        pass
+    # def test_transform_to_dataframe_empty(self, transformer ):
+    #     pass
 
-    def test_add_moving_average(self, transformer):
-        pass
+    # def test_add_moving_average(self, transformer):
+    #     pass
 
-    def test_add_rate_change(self, transformer):
-        pass
+    # def test_add_rate_change(self, transformer):
+    #     pass
 
-    def test_detect_outliers(self, transformer):
-        pass
+    # def test_detect_outliers(self, transformer):
+    #     pass
 
-    def test_aggregate_data(self, transformer):
-        pass
+    # def test_aggregate_data(self, transformer):
+    #     pass
 
-    def test_validate_data_quality(self, transformer):
-        pass
+    # def test_validate_data_quality(self, transformer):
+    #     pass
 
 
     if __name__ == "__main__":
