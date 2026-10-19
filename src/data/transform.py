@@ -212,5 +212,28 @@ class DataTransformer:
             print(f"Error transforming the list of dicts to Dataframe: {error}")
             return pd.DataFrame()
 
+    def _add_moving_average(self, dataframe: pd.DataFrame, window: int = 7) -> pd.DataFrame:
+        """
+        Add the fuel moving average column to the Dataframe.
+
+        Args:
+            dataframe: dataFrame with fuel price data.
+            window: window size for moving average.
+
+        Returns:
+            Dataframe with moving average column.
+        """
+        if dataframe.empty:
+            return dataframe
+        
+        dataframe = dataframe.copy()
+        if 'price_per_liter' in dataframe.columns:
+            col = 'price_per_liter'
+        else:
+            col = 'rate'
+
+        column_name = f'moving_avg_{window}'
+        dataframe[column_name] = dataframe[col].rolling(window=window).mean()
+        return dataframe
 
     
