@@ -185,6 +185,10 @@ class DataTransformer:
         try:
             dataframe = pd.DataFrame(data_list)
 
+            # Convert timestamp to datetime
+            if 'timestamp' in dataframe.columns:
+                dataframe['timestamp'] = pd.to_datetime(dataframe['timestamp'], errors='coerce')
+
             # Ensure there isa price column in the df.
             if 'price_per_litre' in dataframe.columns:
                 dataframe['price_per_litre'] = pd.to_numeric(dataframe['price_per_litre'], errors="coerce")
@@ -194,8 +198,6 @@ class DataTransformer:
                 elif 'rate' in dataframe.columns:
                     dataframe['rate'] = pd.to_numeric(dataframe['rate'], errors="coerce")
                     dataframe['price_per_litre'] = dataframe['rate']
-
-                dataframe['timestamp'] = pd.to_datetime(dataframe['timestamp'], errors='coerce')
 
             # Drop missing values
             valid_subset = []
@@ -208,6 +210,7 @@ class DataTransformer:
             dataframe  = dataframe.reset_index(drop=True)
 
             return dataframe
+        
         except Exception as error:
             print(f"Error transforming the list of dicts to Dataframe: {error}")
             return pd.DataFrame()
@@ -257,7 +260,7 @@ class DataTransformer:
 
         dataframe['rate_change'] = dataframe[col].diff()
         dataframe['rate_change_percentage'] = (dataframe[col].pct_change()* 100)
-        dataframe['price_change'] = dataframe['rate_change_percentage']
+        dataframe['price_change'] = dataframe['rate_change']
         dataframe['price_change_percentage'] = dataframe['rate_change_percentage']
         return dataframe
 
@@ -295,3 +298,40 @@ class DataTransformer:
             dataframe['is_outlier'] = z_scores > threshold
 
         return dataframe
+
+    def _aggregated_data(self, dataframe: pd.DataFrame, freq: str = 'D') -> pd.DataFrame:
+        """
+        Aggregates data by time period.
+            Time periods: 'D': Daily , 'W': Weekly , 'M': Monthly
+        
+        Args:
+            dataframe: DataFrame with fuel price data.
+            frequency: Frequency for aggregation (D, W or M)
+
+        Returns:
+            Aggregated DataFrame
+        """
+        if dataframe.empty:
+            return dataframe
+
+        dataframe = dataframe.copy()
+
+        if 'price_per_liter' in dataframe.columns:
+            col = 'price_per_liter'
+        else:
+            col = 'rate'
+
+        # Dataframe index is set to 'timestamp'
+        dataframe.set_index('timestamp', inplace=True)
+
+        agg_dict: dict = {
+            col: ['mean', 'min', 'max', 'std']
+        }
+        if 'rate' in dataframe.columns and col != 'rate':
+            agg_dict['rate'] = ['mean', 'min', 'max', 'std']
+
+        aggregated: pd.DataFrame = dataframe.resample(freq).agg(agg_dict)
+        aggregated.columns = ['_'.join(c).strip() for c in aggregated.columns.values]
+        aggregated = aggregated.reset_index()
+
+        return aggregated
