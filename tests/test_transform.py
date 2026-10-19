@@ -102,6 +102,7 @@ class TestDataTransformer:
             'source': 'DMRE'
         }
         result = transformer._clean_price_data_valid(invalid_loc)
+
         assert result is None
 
     def test_clean_price_data_case_insensitive(self, transformer):
@@ -114,6 +115,7 @@ class TestDataTransformer:
             'source': 'DRME' 
         }
         result = transformer._clean_price_data_valid(data_insensitive)
+
         assert result is not None
         assert result['fuel_type'] == 'Petrol 95'
         assert result['location'] == 'Gauteng'
@@ -145,6 +147,7 @@ class TestDataTransformer:
         ]
 
         dataframe = transformer._transform_to_dataframe(data_list)
+
         assert isinstance(dataframe, pd.DataFrame)
         assert len(dataframe) == 3
         assert 'price_per_liter' in dataframe.columns
@@ -153,6 +156,7 @@ class TestDataTransformer:
     def test_transform_empty_data_to_dataframe(self, transformer):
         """ Test transformation of empty list of dicts to Dataframe."""
         dataframe = transformer._transform_to_dataframe([])
+
         assert isinstance(dataframe, pd.DataFrame)
         assert len(dataframe) == 0
         assert 'price_per_liter' not in dataframe.columns
@@ -237,7 +241,7 @@ class TestDataTransformer:
         outlier = transformer._detect_outliers_in_dataframe(dataframe)
 
         assert outlier is not None
-        assert 'is_outlier' in dataframe.columns
+        assert 'is_outlier' in outlier.columns
 
 
     def test_aggregated_data(self, transformer):
