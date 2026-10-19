@@ -236,4 +236,27 @@ class DataTransformer:
         dataframe[column_name] = dataframe[col].rolling(window=window).mean()
         return dataframe
 
-    
+    def _add_price_change(self, dataframe: pd.DataFrame) -> pd.DataFrame:
+        """
+        Adds rate/price change and percentage change columns to the DataFrame.
+
+        Args:
+            dataframe: Dataframe with fuel price data.
+
+        Returns:
+            DataFrame with rate/price change columns
+        """
+        if dataframe.empty:
+            return dataframe
+
+        dataframe = dataframe.copy()
+        if 'price_per_liter' in dataframe.columns:
+            col = 'price_per_liter'
+        else:
+            col = 'rate'
+
+        dataframe['rate_change'] = dataframe[col].diff()
+        dataframe['rate_change_percentage'] = (dataframe[col].pct_change()* 100)
+        dataframe['price_change'] = dataframe['rate_change_percentage']
+        dataframe['price_change_percentage'] = dataframe['rate_change_percentage']
+        return dataframe
