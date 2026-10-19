@@ -335,3 +335,26 @@ class DataTransformer:
         aggregated = aggregated.reset_index()
 
         return aggregated
+
+    def _validated_data_quality(self, dataframe: pd.DataFrame) -> dict:
+        """ 
+        Validates data quality and returns the quality metrics.
+
+        Args:
+            dataframe: Dataframe with fuel price data
+
+        Returns:
+            Dictionary with quality metrics.
+        """
+        quality_report = {
+            'total_records': len(dataframe),
+            'missing_values': int(dataframe.isnull().sum().sum()),
+            'duplicate_records': int(dataframe.duplicated().sum()),
+            'validation_passed': True
+        }
+
+        # Check if validation passed (there should not be any msssing or duplicate data!)
+        if quality_report['missing_values'] > 0 or quality_report['duplicate_records'] > 0:
+            quality_report['validation_passed'] = False
+
+        return quality_report
