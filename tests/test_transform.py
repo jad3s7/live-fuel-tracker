@@ -217,8 +217,28 @@ class TestDataTransformer:
 
 
 
-    # def test_detect_outliers(self, transformer):
-    #     pass
+    def test_detect_outliers_in_dataframe(self, transformer):
+        """ Test the outlier detection in the dataframe."""
+        data_list = [
+            {
+            'price_per_liter': 22.95,
+            'timestamp': '2026-09-21 10:00:00',
+            'fuel_type': 'Petrol 95',
+            'location': 'Inland'
+            }, 
+            {
+            'price_per_liter': 23.00,
+            'timestamp': '2026-09-21 11:00:00',
+            'fuel_type': 'Petrol 95',
+            'location': 'Inland'
+            }
+        ]
+        dataframe = transformer._transform_to_dataframe(data_list)
+        dataframe = transformer._detect_outliers_in_dataframe(dataframe)
+
+        assert dataframe is not None
+        assert 'is_outlier' in dataframe.columns
+        
 
     # def test_aggregate_data(self, transformer):
     #     pass
