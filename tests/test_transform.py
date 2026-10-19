@@ -234,14 +234,34 @@ class TestDataTransformer:
             }
         ]
         dataframe = transformer._transform_to_dataframe(data_list)
-        dataframe = transformer._detect_outliers_in_dataframe(dataframe)
+        outlier = transformer._detect_outliers_in_dataframe(dataframe)
 
-        assert dataframe is not None
+        assert outlier is not None
         assert 'is_outlier' in dataframe.columns
-        
 
-    # def test_aggregate_data(self, transformer):
-    #     pass
+
+    def test_aggregated_data(self, transformer):
+        """ Test that checks that data aggregation is done correctly by time period."""
+        data_list = [
+            {
+                'price_per_liter': 22.95,
+                'timestamp': '2026-09-21 10:00:00',
+                'fuel_type': 'Petrol 95',
+                'location': 'Inland'
+            },
+            {
+               'price_per_liter': 23.05,
+                'timestamp': '2026-09-21 10:00:00',
+                'fuel_type': 'Petrol 95',
+                'location': 'Inland'
+            }
+        ]
+        dataframe = transformer._transform_to_dataframe(data_list)
+        aggregate_dataframe = transformer._aggregated_data(dataframe)
+
+        assert aggregate_dataframe is not None
+        assert isinstance(aggregate_dataframe, pd.DataFrame)
+
 
     # def test_validate_data_quality(self, transformer):
     #     pass
