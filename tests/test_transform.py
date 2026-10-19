@@ -159,7 +159,7 @@ class TestDataTransformer:
     
 
     def test_add_moving_averages(self, transformer):
-        """ Test that checks for adding movnig average to Dataframe."""
+        """ Test that checks for adding moving average to Dataframe."""
         data_list = [
             {
                 'price_per_liter': 22.95,
@@ -186,8 +186,30 @@ class TestDataTransformer:
         
         assert 'moving_avg_2' in dataframe.columns
 
-    # def test_add_rate_change(self, transformer):
-    #     pass
+    def test_add_price_change(self, transformer):
+        """ Test that checks adding price change to the dataframe."""
+        data_list = [
+            {
+            'price_per_liter': 22.95,
+            'timestamp': '2026-09-21 10:00:00',
+            'fuel_type': 'Petrol 95',
+            'location': 'Inland',
+            },
+            {
+            'price_per_liter': 23.13,
+            'timestamp': '2026-09-21 11:00:00',
+            'fuel_type': 'Petrol 95',
+            'location': 'Inland',    
+            }
+        ]
+
+        dataframe = transformer._transform_to_dataframe(data_list)
+        dataframe = transformer._add_price_change(dataframe)
+
+        assert 'price_change' in dataframe.columns or 'rate_change' in dataframe.columns
+        assert 'price_change_percentage' in dataframe.columns or 'rate_change_percentage' in dataframe.columns
+
+        
 
     # def test_detect_outliers(self, transformer):
     #     pass
