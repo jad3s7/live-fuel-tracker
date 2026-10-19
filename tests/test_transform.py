@@ -266,9 +266,25 @@ class TestDataTransformer:
         assert isinstance(aggregated_df, pd.DataFrame)
 
 
-    # def test_validate_data_quality(self, transformer):
-    #     pass
-    
+    def test_validated_data_quality(self, transformer):
+        """ Test that checks for data quality."""
+        data_list = [
+            {
+                'price_per_liter': 22.95,
+                'timestamp': '2026-09-21 10:00:00',
+                'fuel_type': 'Petrol 95',
+                'location': 'Inland'
+            }
+        ]
+        dataframe = transformer._transform_to_dataframe(data_list)
+        quality = dataframe._validated_data_quality(dataframe)
+
+        assert isinstance(quality, dict)
+        assert 'total_records' in quality
+        assert 'missing_values' in quality
+        assert 'duplicate_records' in quality
+        assert 'validation_passed' in quality
+        assert quality['total_records'] == 1
 
     if __name__ == "__main__":
         pytest.main([__file__, "-v"])
