@@ -277,7 +277,7 @@ class TestDataTransformer:
             }
         ]
         dataframe = transformer._transform_to_dataframe(data_list)
-        quality = dataframe._validated_data_quality(dataframe)
+        quality = transformer._validated_data_quality(dataframe)
 
         assert isinstance(quality, dict)
         assert 'total_records' in quality
