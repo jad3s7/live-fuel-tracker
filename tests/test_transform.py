@@ -183,7 +183,8 @@ class TestDataTransformer:
 
         dataframe = transformer._transform_to_dataframe(data_list)
         dataframe = transformer._add_moving_average(dataframe, window=2)
-        
+
+        assert 'moving_avg_2' in dataframe.columns is not None
         assert 'moving_avg_2' in dataframe.columns
 
     def test_add_price_change(self, transformer):
@@ -205,11 +206,16 @@ class TestDataTransformer:
 
         dataframe = transformer._transform_to_dataframe(data_list)
         dataframe = transformer._add_price_change(dataframe)
+        
 
+        assert 'price_change' in dataframe.columns is not None
+        assert 'price_change_percentage' in dataframe.columns is not None
+        assert 'rate_change' in dataframe.columns is not None
+        assert 'rate_change_percentage' in dataframe.columns is not None
         assert 'price_change' in dataframe.columns or 'rate_change' in dataframe.columns
         assert 'price_change_percentage' in dataframe.columns or 'rate_change_percentage' in dataframe.columns
 
-        
+
 
     # def test_detect_outliers(self, transformer):
     #     pass
