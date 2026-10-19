@@ -260,3 +260,38 @@ class DataTransformer:
         dataframe['price_change'] = dataframe['rate_change_percentage']
         dataframe['price_change_percentage'] = dataframe['rate_change_percentage']
         return dataframe
+
+    def _detect_outliers_in_dataframe(self, dataframe: pd.DataFrame, threshold: float = 2.0) -> pd.DataFrame:
+
+        """ 
+        Tests checks how many std dev a fuel price point is from the mean column.
+        z-scores are used to describe how many standard deviations there are in the fuel price data.
+        
+        Args:
+            dataframe: DataFrame with fuel price data.
+            thresehold: Z-score thresehold for outlier detection.
+        
+        Returns:
+            Dataframe with is_outlier column
+        """
+
+        if dataframe.empty:
+            return dataframe
+
+        dataframe = dataframe.copy()
+        if 'price_per_liter' in dataframe.columns:
+            col = 'price_per_liter'
+        else:
+            col = 'rate'
+
+        mean = dataframe[col].mean()
+        std = dataframe[col].std()
+
+        # Check if values are missing 
+        if pd.isna(std) or std == 0:
+            dataframe['is_outlier'] = False
+        else:
+            z_scores = abs((dataframe[col] - mean) / std)
+            dataframe['is_outlier'] = z_scores > threshold
+
+        return dataframe
