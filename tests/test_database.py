@@ -4,6 +4,7 @@ These tests verifies that the fuel price database operation are working.
 """
 
 import pytest
+import sqlite3
 import os
 import tempfile
 from src.database.storage_db import FuelDatabase
@@ -33,8 +34,19 @@ class TestFuelDatabase:
         assert temporary_db.connection is not None
         assert temporary_db.db_path.endswith('.db')
 
-    # def test_insert_price(self, temporary_db):
-    #     ...
+
+    def test_insert_price(self, temporary_db):
+        """ Test that checks for inserting a single fuel price into database."""
+        test_data = {
+            'timestamp': '2026-09-21 12:00:00',
+            'fuel_type': 'Petrol 95',
+            'price_per_liter': 22.95,
+            'location': 'Inland',
+            'source': 'DMRE',
+        }
+
+        result = temporary_db._insert_price(test_data)
+        assert result is True
 
     # def test_insert_price_with_invalid_data(self, temporary_db):
     #     ...
@@ -53,4 +65,3 @@ class TestFuelDatabase:
 
     # def test_database_close_connection(self, temporary_db):
     #     ...
-    
