@@ -9,11 +9,24 @@ import tempfile
 from src.database.storage_db import FuelDatabase
 
 class TestFuelDatabase:
-    """ Test class for FuelDatabase. """
+    """ Test class for FuelDatabase."""
 
+    @pytest.fixture
     def temporary_db(self):
-        pass
+        """Creates a temporary database for testing. """
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.db') as temp_database:
+            db_path: str = temp_database.name
 
+            db = FuelDatabase(db_path)
+
+            # only gives you db if called. 
+            yield db
+
+            db.close()
+            if os.path.exists(db_path):
+                # temp_db removed after db.closes, next test, new tempfile.
+                os.remove(db_path)
+                
     def test_database_initialization(self, temporary_db): 
         pass
 
