@@ -28,25 +28,29 @@ class TestFuelDatabase:
                 os.remove(db_path)
                 
     def test_database_initialization(self, temporary_db): 
-        pass
+        """ Test to check if database can be initialized. """
+        assert temporary_db is not None
+        assert temporary_db.connection is not None
+        assert temporary_db.db_path.endswith('.db')
 
-    def test_insert_price(self, temporary_db):
-        pass
+    # def test_insert_price(self, temporary_db):
+    #     ...
 
-    def test_insert_price_with_invalid_data(self, temporary_db):
-        pass
+    # def test_insert_price_with_invalid_data(self, temporary_db):
+    #     ...
 
-    def test_insert_multiple_prices(self, temporary_db):
-        pass
+    # def test_insert_multiple_prices(self, temporary_db):
+    #     ...
 
-    def test_get_latest_prices(self, temporary_db):
-        pass
+    # def test_get_latest_prices(self, temporary_db):
+    #     ...
 
-    def test_get_prices_by_date_range(self, temporary_db):
-        pass
+    # def test_get_prices_by_date_range(self, temporary_db):
+    #     ...
 
-    def test_get_statistics(self, temporary_db):
-        pass
+    # def test_get_statistics(self, temporary_db):
+    #     ...
 
-    def test_database_close_connection(self, temporary_db):
-        pass
+    # def test_database_close_connection(self, temporary_db):
+    #     ...
+    
