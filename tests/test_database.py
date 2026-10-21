@@ -110,6 +110,10 @@ class TestFuelDatabase:
         result = temporary_db._insert_price_database(0)
         assert result == 0
 
+    def test_insert_prices_database_multiple_empty(self, temporary_db):
+        """ Test that checks if empty price batches can be inserted. """
+        result = temporary_db._insert_price_database_multiple([])
+        assert result == 0
 
 
 
