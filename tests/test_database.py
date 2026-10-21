@@ -13,10 +13,10 @@ class TestFuelDatabase:
     """ Test class for FuelDatabase."""
 
     @pytest.fixture
-    def temporary_db(self):
+    def temp_db(self):
         """Creates a temporary database for testing. """
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.db') as temp_database:
-            db_path: str = temp_database.name
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.db') as temp_file:
+            db_path: str = temp_file.name
 
             db = FuelDatabase(db_path)
 
@@ -28,14 +28,14 @@ class TestFuelDatabase:
                 # temp_db removed after db.closes, next test, new tempfile.
                 os.remove(db_path)
                 
-    def test_database_initialization(self, temporary_db): 
+    def test_database_initialization(self, temp_db): 
         """ Test to check if database can be initialized. """
-        assert temporary_db is not None
-        assert temporary_db.connection is not None
-        assert temporary_db.db_path.endswith('.db')
+        assert temp_db is not None
+        assert temp_db.connection is not None
+        assert temp_db.db_path.endswith('.db')
 
 
-    def test_insert_price(self, temporary_db):
+    def test_insert_price(self, temp_db):
         """ Test that checks for inserting a single fuel price into database."""
         test_data = {
             'timestamp': '2026-09-21 12:00:00',
@@ -45,7 +45,7 @@ class TestFuelDatabase:
             'source': 'DMRE',
         }
 
-        result = temporary_db._insert_price(test_data)
+        result = temp_db._insert_price(test_data)
         assert result is True
 
     # def test_insert_price_with_invalid_data(self, temporary_db):
