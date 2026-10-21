@@ -92,6 +92,13 @@ class TestFuelDatabase:
                 'price_per_liter': 20.50,
                 'location': 'Coastal',
                 'source': 'DMRE'
+            }, 
+            {
+                'timestamp': '2026-01-15 14:30:00',
+                'fuel_type': 'Petrol 95',
+                'price_per_liter': 21.05,
+                'location': 'Coastal',
+                'source': 'DMRE'
             }
         ]
         result = temporary_db._insert_price_database_multiple(test_data)

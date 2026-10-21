@@ -22,7 +22,14 @@ class FuelDatabase:
         self.db_path = db_path
         self.connection = sqlite3.connect(db_path)
         self._create_tables()
-
+    
+    def close(self):
+        """
+        Close the database connection.
+        This method should be called when done with the database.
+        """
+        if self.connection:
+            self.connection.close()
 
 
     def _create_tables(self):
@@ -64,7 +71,7 @@ class FuelDatabase:
 
         self.connection.commit()
 
-    def _insert_price(self, fuel_data: dict) -> bool:
+    def _insert_price_database(self, fuel_data: dict) -> bool:
         """
         Inserts a single fuel price into database.
 
@@ -97,11 +104,50 @@ class FuelDatabase:
             self.connection.rollback()
             return False
 
+    def _insert_price_database_multiple(self, fuel_data_list: list) -> int:
+        """
+        Insert multiple fuel prices into the database in a single transaction.
 
-    def close(self):
+        Args:
+            fuel_data_list: list of dictionaries containing fuel data.
+
+        Returns:
+            Number of successfully insert records.
         """
-        Close the database connection.
-        This method should be called when done with the database.
-        """
-        if self.connection:
-            self.connection.close()
+        if not fuel_data_list:
+            return 0
+
+        try:
+            cursor = self.connection.cursor()
+
+            insert_data = [
+                (
+                    fuel.get('timestamp'),
+                    fuel.get('fuel_type') or 'Petrol 95',
+                    fuel.get('price_per_liter', fuel.get('rate', fuel.get('price', 0.0))),
+                    fuel.get('location') or fuel.get('region') or 'Inland',
+                    fuel.get('source') or 'DMRE'
+
+
+                )
+                for fuel in fuel_data_list
+            ]
+
+            cursor.executemany('''
+                INSERT INTO fuel_data(timestamp, fuel_type, price_per_liter, location, source)
+                VALUES (?, ?, ?, ?, ?)
+                ''', insert_data)
+            
+            self.connection.commit()
+            return cursor.rowcount
+
+        except Exception as error:
+            print(f'Error inserting multiple fuel prices: {error}')
+            return 0
+        
+
+
+        
+
+
+  
