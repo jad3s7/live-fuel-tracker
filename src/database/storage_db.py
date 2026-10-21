@@ -140,7 +140,8 @@ class FuelDatabase:
             
             self.connection.commit()
             return cursor.rowcount
-
+        
+        # Try and except catches the empty price here.
         except Exception as error:
             print(f'Error inserting multiple fuel prices: {error}')
             return 0

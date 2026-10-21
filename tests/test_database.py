@@ -107,7 +107,7 @@ class TestFuelDatabase:
 
     def test_insert_prices_database_empty(self, temporary_db):
         """ Test that checks if empty price can be inserted."""
-        result = temporary_db._insert_price_database('')
+        result = temporary_db._insert_price_database(0)
         assert result == 0
 
 
