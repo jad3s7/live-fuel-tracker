@@ -62,9 +62,42 @@ class TestFuelDatabase:
         assert result is not None
         assert result is True
 
-    # def test_insert_multiple_prices(self, temporary_db):
-    #     ...
-
+    def test_insert_prices_database_multiple(self, temporary_db):
+        """ Test that checks if multiple data prices can be added to database."""
+        test_data = [
+            {
+                'timestamp': '2026-01-15 10:30:00',
+                'fuel_type': 'Petrol 95',
+                'price_per_liter': 22.95,
+                'location': 'Inland',
+                'source': 'DMRE'
+            },
+            {
+                'timestamp': '2026-01-15 11:30:00',
+                'fuel_type': 'Petrol 93',
+                'price_per_liter': 22.45,
+                'location': 'Inland',
+                'source': 'DMRE'
+            }, 
+            {
+                'timestamp': '2026-01-15 12:30:00',
+                'fuel_type': 'Diesel 50ppm',
+                'price_per_liter': 21.30,
+                'location': 'Coastal',
+                'source': 'DMRE'
+            }, 
+            {
+                'timestamp': '2026-01-15 13:30:00',
+                'fuel_type': 'Diesel 500ppm',
+                'price_per_liter': 20.50,
+                'location': 'Coastal',
+                'source': 'DMRE'
+            }
+        ]
+        result = temporary_db._insert_price_database_multiple(test_data)
+        assert result is not None
+        assert result == 4
+        
     # def test_get_latest_prices(self, temporary_db):
     #     ...
 
