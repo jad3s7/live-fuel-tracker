@@ -145,9 +145,60 @@ class FuelDatabase:
         except Exception as error:
             print(f'Error inserting multiple fuel prices: {error}')
             return 0
+
+    def _get_latest_prices(self, limit: int = 10, fuel_type: str = None, location: str = None ) -> list:
+        """ 
+        Retrieves the most recent fuel prices from the database.
+
+        Args:
+            limit: max number of records to return.
         
+        Returns:
+            List of dictionaries containing fuel price data.
+        """
+        try:
+            cursor = self.connection.cursor()
 
+            query = "SELECT timestamp, fuel_type, price_per_liter, location, source FROM fuel_data"
+            params: list = []
+            conditions: list = []
 
+            if fuel_type:
+                conditions.append("fuel-type = ?")
+                params.append(fuel_type)
+            if location:
+                conditions.append("location = ?")
+                params.append(location)
+
+            if conditions:
+                query += " WHERE " + " AND ".join(conditions)
+
+            query += " ORDER BY timestamp DESC LIMIT ?"
+            params.append(limit)
+
+            cursor.execute(query, tuple(params))
+            rows = cursor.fetchall()
+
+            result = [
+                {
+                    'timestamp': row[0],
+                    'fuel_type': row[1],
+                    'price_per_liter': row[2],
+                    'rate': row[2],
+                    'price': row[2],
+                    'location': row[3],
+                    'region': row[3],
+                    'source': row[4],
+                    'currency': 'ZAR'
+
+                }
+                for row in rows
+            ]
+            return result
+
+        except Exception as error:
+            print(f"Error getting latest fuel prices: {error}")
+            return []
         
 
 
