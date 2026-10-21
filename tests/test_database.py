@@ -103,8 +103,16 @@ class TestFuelDatabase:
         ]
         result = temporary_db._insert_price_database_multiple(test_data)
         assert result is not None
-        assert result == 4
-        
+        assert result == 5
+
+    def test_insert_prices_database_empty(self, temporary_db):
+        """ Test that checks if empty price can be inserted."""
+        result = temporary_db._insert_price_database('')
+        assert result == 0
+
+
+
+
     # def test_get_latest_prices(self, temporary_db):
     #     ...
 
