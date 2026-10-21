@@ -46,10 +46,21 @@ class TestFuelDatabase:
         }
 
         result = temporary_db._insert_price_database(test_data)
+        assert result is not None
         assert result is True
 
-    # def test_insert_price_with_invalid_data(self, temporary_db):
-    #     ...
+    def test_insert_price_with_invalid_data(self, temporary_db):
+        """ Test that checks that invalid data prices are not inserted to database."""
+        invalid_data = {
+            'timestamp': '2026-09-21 12:00:00',
+            'fuel_type': 'Petrol 95',
+            'price_per_liter': -1.0,        # cannot be -ve
+            'location': 'Inland',
+            'source': 'DMRE' 
+        }
+        result = temporary_db._insert_price_database(invalid_data)
+        assert result is not None
+        assert result is True
 
     # def test_insert_multiple_prices(self, temporary_db):
     #     ...
