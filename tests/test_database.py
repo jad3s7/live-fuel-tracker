@@ -116,9 +116,37 @@ class TestFuelDatabase:
         assert result == 0
 
 
+    def test_get_latest_prices(self, temporary_db):
+        """ Test that checks if latest fuel prices are retrieved from Database. """
+        test_data = [
+            {
+                'timestamp': '2026-09-22 10:00:00',
+                'fuel_type': 'Petrol 95',
+                'price_per_liter': 22.95,
+                'location': 'Inland',
+                'source': 'DMRE'
+            },
+            {
+                'timestamp': '2026-09-22 11:30:00',
+                'fuel_type': 'Diesel 50ppm',
+                'price_per_liter': 21.30,
+                'location': 'Coastal',
+                'source': 'DMRE'
+            }
+        ]
+        temporary_db._insert_price_database_multiple(test_data)
+        latest_data = temporary_db._get_latest_prices(limit=5)
 
-    # def test_get_latest_prices(self, temporary_db):
-    #     ...
+        assert isinstance(latest_data, list)
+        assert len(latest_data) >= 2
+
+        for l_data in latest_data:
+            assert isinstance(l_data, dict)
+            assert 'price_per_liter' in l_data or 'rate' in l_data
+            assert 'timestamp' in l_data
+            assert 'fuel_type' in l_data
+            assert 'location' in l_data
+
 
     # def test_get_prices_by_date_range(self, temporary_db):
     #     ...
