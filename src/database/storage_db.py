@@ -21,17 +21,11 @@ class FuelDatabase:
         """
         self.db_path = db_path
         self.connection = sqlite3.connect(db_path)
-        self._create_fuel_data_tables()
+        self._create_tables()
 
-    def close(self):
-        """
-        Close the database connection.
-        This method should be called when done with the database.
-        """
-        if self.connection:
-            self.connection.close()
 
-    def _create_fuel_data_tables(self):
+
+    def _create_tables(self):
         """
         Creates the fuel data table if it does not exist.
         This method is called during initialization.
@@ -39,7 +33,7 @@ class FuelDatabase:
         cursor = self.connection.cursor()
 
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS fuel_data (
+            CREATE TABLE IF NOT EXISTS fuel_data(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp TEXT NOT NULL,
                 fuel_type TEXT NOT NULL,
@@ -50,4 +44,64 @@ class FuelDatabase:
             )
         ''')
 
-        # C
+        # Create index on timestamp for faster queries.
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_timestamp
+            ON fuel_data(timestamp)
+        ''')
+
+        # Create index on fuel_type for faster queries/
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_fuel_type
+            ON fuel_data(fuel_type)
+        ''')
+
+        # Create index on location for faster queries.
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_location
+            ON fuel_data(location)
+        ''')
+
+        self.connection.commit()
+
+    def _insert_price(self, fuel_data: dict) -> bool:
+        """
+        Inserts a single fuel price into database.
+
+        Args:
+            fuel_data: Dict with fuel information.
+            (timestamp, fuel_type, price_per_liter, location and source)
+
+        Returns:
+            True if insertion was good g, false otherwise.
+        """
+        try:
+            cursor = self.connection.cursor()
+
+            timestamp = fuel_data.get('timestamp')
+            fuel_type = fuel_data.get('fuel_type') or 'Petrol 95'
+            price = fuel_data.get('price_per_liter', fuel_data.get('rate', fuel_data.get('price', 0.0)))
+            location = fuel_data.get('location') or fuel_data.get('region') or 'Inland'
+            source = fuel_data.get('source') or 'DMRE'
+
+            cursor.execute('''
+                INSERT INTO fuel_data (timestamp, fuel_type, price_per_liter, location, source)
+                VALUES (?, ?, ?, ?, ?)
+                ''', (timestamp, fuel_type, price, location, source))
+            
+            self.connection.commit()
+            return True
+
+        except Exception as error:
+            print(f"Error inserting fuel price into database: {error}")
+            self.connection.rollback()
+            return False
+
+
+    def close(self):
+        """
+        Close the database connection.
+        This method should be called when done with the database.
+        """
+        if self.connection:
+            self.connection.close()
