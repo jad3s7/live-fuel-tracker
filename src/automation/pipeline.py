@@ -69,6 +69,23 @@ def run_etl_pipeline():
 
         print(f"Total extracted raw records: {len(all_raw_data)}")
 
+        # Transform
+        print("\n[2/3] Transforming and cleaning fuel price data...")
+        cleaned_data = []
+
+        for data in all_raw_data:
+            cleaned= transformer._clean_price_data_valid(data)
+            if cleaned:
+                cleaned_data.append(cleaned)
+        print(f"Cleaned {len(cleaned_data)} valid data points")
+
+        if not cleaned_data:
+            print("Error: No valid data after transformation")
+            return False
+
+        # Load
+        print("\n[3/3]")
+
     except Exception as error:
         print(f"Error during ETL pipeline: {error}")
         return False
