@@ -251,3 +251,71 @@ class FuelDatabase:
         except Exception as error:
             print(f"Error getting fuel prices by date range: {error}")
             return []
+
+    def _get_statistics(self, fuel_type: str = None, location: str = None) -> dict:
+        """
+        Calculate and return statistics about the stored fuel prices.
+
+        Args: 
+            fuel_type: filter by fuel type
+            location: filter by location / region
+
+        Returns:
+            Dict containing stats (
+            total_records, min_price, 
+            max_price, avg_price)
+        """
+        try: 
+            cursor = self.connection.cursor()
+
+            query = '''
+                SELECT
+                    COUNT(*) as total_records,
+                    MIN(price_per_liter) as min_price,
+                    MAX(price_per_liter) as max_price,
+                    AVG(price_per_liter) as avg_price,
+                FROM fuel_data
+            '''
+            params: list = []
+            conditions: list = []
+
+            if fuel_type:
+                conditions.append("fuel_type = ?")
+                params.append(fuel_type)
+
+            if location:
+                conditions.append("location = ?")
+                params.append(location)
+
+            if conditions:
+                query += " WHERE " + " AND ".join(conditions)
+
+            cursor.execute(query, tuple(params))
+            row = cursor.fetchone()
+
+            total_records = row[0] if row and row[0] else 0
+            min_val = row[1] if row and row[1] is not None else 0.0
+            max_val = row[2] if row and row[2] is not None else 0.0
+            avg_val = round(row[3], 4) if row and row[3] is not None else 0.0
+
+            statistics = {
+                'total_records': total_records,
+                'min_price': min_val,
+                'max_price': max_val,
+                'avg_price': avg_val,
+                'min_rate': min_val,
+                'max_rate': min_val,
+                'avg_rate': avg_val
+            }
+            return statistics
+        except Exception as error:
+            print(f"Error getting statistics: {error}")
+            return {
+                'total_records': 0,
+                'min_price': 0,
+                'max_price': 0,
+                'avg_price': 0,
+                'min_rate': 0,
+                'max_rate': 0,
+                'avg_rate': 0,
+            }
