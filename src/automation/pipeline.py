@@ -21,9 +21,9 @@ def run_etl_pipeline():
     2. Transform and clean the data.
     3. Load data into SQLite Database.
     """
-    print('=' * 50)
+    print('=' * 54)
     print("Starting South African Fuel Price Tracker ETL Pipeline")
-    print('=' * 50)
+    print('=' * 54)
 
     # Initialize components
     extractor = FuelExtractor(
@@ -33,7 +33,46 @@ def run_etl_pipeline():
     )
     transformer = DataTransformer()
     db = FuelDatabase(config.get_database_path())
-    
+
+    try:
+        # Extract.
+        print("\n[1/3] Extracting fuel price data from source/API...")
+        all_raw_data = []
+
+        # Extract current fuel prices for major fuel types in South Africa.
+        fuel_types = [
+            'Petrol 95',
+            'Petrol 93',
+            'Diesel 50ppm',
+            'Diesel 500ppm',
+        ]
+        regions = ['Inland', 'Coastal']
+        for fueltype in fuel_types:
+            for region in regions:
+                current_price = extractor.get_current_prices(fuel_type=fueltype, location=region)
+                if current_price:
+                    all_raw_data.append(current_price)
+
+        if not all_raw_data:
+            print("Error: Failed to extract current fuel prices.")
+            return False
+
+        sample_price = all_raw_data[0]
+        print(f"Extracted current price: {sample_price['fuel_type']} ({sample_price['location']}) -R{sample_price['price_per_liter']:.2f}/L")
+
+
+        # retrieve the historical data for each fuel type and region.
+        for fueltype in fuel_types:
+            for region in regions:
+                historical_data = extractor.get_historical_data(days=7, fuel_type=fueltype, location=region)
+                all_raw_data.extend(historical_data)
+
+        print(f"Total extracted raw records: {len(all_raw_data)}")
+
+    except Exception as error:
+        print(f"Error during ETL pipeline: {error}")
+        return False
+
 
 
 
