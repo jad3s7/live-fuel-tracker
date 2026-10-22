@@ -319,3 +319,60 @@ class FuelDatabase:
             """
             if self.connection:
                 self.connection.close()
+
+if __name__ == '__main__':
+    # testing database functionality.
+    import tempfile
+    import os
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".db") as temp_file:
+        db_path = temp_file.name
+
+        try:
+            db = FuelDatabase(db_path)
+
+            # Test inserting single fuel price"
+            test_data = {
+            'timestamp': '2026-09-21 12:00:00',
+            'fuel_type': 'Petrol 95',
+            'price_per_liter': 22.95,
+            'location': 'Inland',
+            'source': 'DMRE'
+        }
+            db._insert_price_database(test_data)
+            print("Inserted single fuel price successfully")
+
+            # Test inserting multiple fuel rates
+            test_data_list = [
+                {
+                    'timestamp': '2026-09-21 13:00:00',
+                    'fuel_type': 'Diesel 50ppm',
+                    'price_per_liter': 21.30,
+                    'location': 'Inland',
+                    'source': 'DMRE'
+                },
+                {
+                    'timestamp': '2026-09-21 14:00:00',
+                    'fuel_type': 'Petrol 93',
+                    'price_per_liter': 22.45,
+                    'location': 'Coastal',
+                    'source': 'DMRE'
+                }
+            ]
+            db._insert_price_database_multiple(test_data_list)
+            print("Inserted multiple fuel prices successfully")
+
+            # Test getting latest rates
+            latest = db._get_latest_prices(limit=5)
+            print(f"Retrieved {len(latest)} latest rates")
+
+            # Test getting statistics
+            stats = db._get_statistics()
+            print(f"Statistics: {stats}")
+
+            db.close()
+            print("Database test completed successfully")
+
+        finally:
+            if os.path.exists(db_path):
+                os.remove(db_path)
