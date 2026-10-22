@@ -265,7 +265,7 @@ class FuelDatabase:
                     COUNT(*) as total_records,
                     MIN(price_per_liter) as min_price,
                     MAX(price_per_liter) as max_price,
-                    AVG(price_per_liter) as avg_price,
+                    AVG(price_per_liter) as avg_price
                 FROM fuel_data
             '''
             params: list = []
