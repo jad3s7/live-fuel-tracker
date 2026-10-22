@@ -92,6 +92,18 @@ def run_etl_pipeline():
         else:
             print("Warning: No records inserted into database")
 
+        #  Get Statistics
+        stats = db._get_statistics()
+        print("\n" + "=" * 50)
+        print("Fuel Price Pipeline Statistics:")
+        print(f"Total records in database: {stats['total_records']}")
+        print(f"Average price: R{stats['avg_price']:.2f}/L")
+        print(f"Min price: R{stats['min_price']:.2f}/L")
+        print(f"Max price: R{stats['max_price']:2f}/L")
+        print("=" * 50)
+
+        return True
+
     except Exception as error:
         print(f"Error during ETL pipeline: {error}")
         return False
