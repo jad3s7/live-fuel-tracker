@@ -84,7 +84,13 @@ def run_etl_pipeline():
             return False
 
         # Load
-        print("\n[3/3]")
+        print("\n[3/3] Loading data into database...")
+        inserted_count = db._insert_price_database_multiple(cleaned_data)
+
+        if inserted_count > 0:
+            print(f"Successfully inserted {inserted_count} records into database.")
+        else:
+            print("Warning: No records inserted into database")
 
     except Exception as error:
         print(f"Error during ETL pipeline: {error}")
