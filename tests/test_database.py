@@ -148,8 +148,33 @@ class TestFuelDatabase:
             assert 'location' in l_data
 
 
-    # def test_get_prices_by_date_range(self, temporary_db):
-    #     ...
+    def test_get_prices_by_date_range(self, temporary_db):
+        """ Test to check fuel prices per date range."""
+        test_data = [
+            {
+                'timestamp': '2026-09-01 10:00:00',
+                'fuel_type': 'Petrol 95',
+                'price_per_liter': 22.95,
+                'location': 'Inland',
+                'source': 'DMRE'
+            }, 
+            {
+                'timestamp': '2026-09-08 11:30:00',
+                'fuel_type': 'Petrol 95',
+                'price_per_liter': 23.10,
+                'location': 'Inland',
+                'source': 'DMRE'
+            }
+        ]
+        temporary_db._insert_price_database_multiple(test_data)
+        price_range = temporary_db._get_prices_by_date_range('2026-09-01', '2026-09-08 23:59:59')
+        assert isinstance(price_range, list)
+        assert len(price_range) == 2
+    
+
+
+
+
 
     # def test_get_statistics(self, temporary_db):
     #     ...
