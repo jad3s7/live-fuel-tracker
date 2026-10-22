@@ -168,16 +168,41 @@ class TestFuelDatabase:
         ]
         temporary_db._insert_price_database_multiple(test_data)
         price_range = temporary_db._get_prices_by_date_range('2026-09-01', '2026-09-08 23:59:59')
+        
         assert isinstance(price_range, list)
         assert len(price_range) == 2
+
     
+    def test_get_statistics(self, temporary_db):
+        """ Test getting fuel price statistics from the database. """
+        test_data = [
+            {
+                'timestamp': '2026-09-22 10:00:00',
+                'fuel_type': 'Petrol 95',
+                'price_per_liter': 22.00,
+                'location': 'Inland',
+                'source': 'DMRE'
+            },
+            {
+                'timestamp': '2026-09-22 11:30:00',
+                'fuel_type': 'Petrol 95',
+                'price_per_liter': 24.00,
+                'location': 'Inland',
+                'source': 'DMRE'
+            }
+        ]
+        temporary_db._insert_price_database_multiple(test_data)
+        stats = temporary_db._get_statistics()
 
-
-
-
-
-    # def test_get_statistics(self, temporary_db):
-    #     ...
+        assert isinstance(stats, dict)
+        assert 'total_records' in stats
+        assert 'min_price' in stats or 'min_rate' in stats
+        assert 'max_price' in stats or 'max_rate' in stats
+        assert 'avg_price' in stats or 'avg_rate' in stats
+        assert stats['total_records'] >= 2
+        assert stats['min_price'] == 22.00
+        assert stats['max_price'] == 24.00
+        assert stats['avg_price'] == ((24.00+22.00/2))
 
     # def test_database_close_connection(self, temporary_db):
     #     ...
