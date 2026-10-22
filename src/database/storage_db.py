@@ -23,14 +23,6 @@ class FuelDatabase:
         self.connection = sqlite3.connect(db_path)
         self._create_tables()
     
-    def close(self):
-        """
-        Close the database connection.
-        This method should be called when done with the database.
-        """
-        if self.connection:
-            self.connection.close()
-
 
     def _create_tables(self):
         """
@@ -293,7 +285,7 @@ class FuelDatabase:
             cursor.execute(query, tuple(params))
             row = cursor.fetchone()
 
-            total_records = row[0] if row and row[0] else 0
+            total_records = row[0] if row and row[0] is not None else 0
             min_val = row[1] if row and row[1] is not None else 0.0
             max_val = row[2] if row and row[2] is not None else 0.0
             avg_val = round(row[3], 4) if row and row[3] is not None else 0.0
@@ -312,10 +304,18 @@ class FuelDatabase:
             print(f"Error getting statistics: {error}")
             return {
                 'total_records': 0,
-                'min_price': 0,
-                'max_price': 0,
-                'avg_price': 0,
-                'min_rate': 0,
-                'max_rate': 0,
-                'avg_rate': 0,
+                'min_price': 0.0,
+                'max_price': 0.0,
+                'avg_price': 0.0,
+                'min_rate': 0.0,
+                'max_rate': 0.0,
+                'avg_rate': 0.0,
             }
+
+    def close(self):
+            """
+            Close the database connection.
+            This method should be called when done with the database.
+            """
+            if self.connection:
+                self.connection.close()

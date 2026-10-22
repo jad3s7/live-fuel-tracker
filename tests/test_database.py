@@ -202,7 +202,12 @@ class TestFuelDatabase:
         assert stats['total_records'] >= 2
         assert stats['min_price'] == 22.00
         assert stats['max_price'] == 24.00
-        assert stats['avg_price'] == ((24.00+22.00/2))
+        assert stats['avg_price'] == 23.00
+    
+    def test_database_close_connection(self, temporary_db) -> None:
+        """Test that checks if the database connection closes."""
+        assert temporary_db.connection is not None
+        temporary_db.close()
 
-    # def test_database_close_connection(self, temporary_db):
-    #     ...
+if __name__ == '__main__':
+    pytest.main([__file__, "-v"])
