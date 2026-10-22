@@ -199,7 +199,55 @@ class FuelDatabase:
         except Exception as error:
             print(f"Error getting latest fuel prices: {error}")
             return []
-        
 
+    def _get_prices_by_date_range(self, start_date: str, end_date: str, fuel_type: str = None, location: str = None) -> list:
+        """ 
+        Retrieves fuel prices within a specific date range.
 
-  
+        Args:
+            start_date: start date in 'YYYY-MM-DD' or timestamp format
+            end_date: end date in 'YYYY-MM-DD' or timestamp format
+            fuel_type: filter by fuel type
+            location: filter by location or region
+
+        Returns:
+            List of dicts containing fuel price information.    
+        """
+
+        try:
+            cursor = self.connection.cursor()
+
+            query = "SELECT timestamp, fuel_type, price_per_liter, location, source FROM fuel_data WHERE timestamp >= ? AND timestamp <= ?"
+            params: list = [start_date, end_date]
+
+            if fuel_type:
+                query += " AND fuel_type = ?"
+                params.append(fuel_type)
+
+            if location:
+                query += " AND location = ?"
+                params.append(location)
+
+            query += " ORDER BY timestamp ASC"
+            cursor.execute(query, tuple(params))
+            rows = cursor.fetchall()
+    
+            result = [
+                {
+                    'timestamp': row[0],
+                    'fuel_type': row[1],
+                    'price_per_liter': row[2],
+                    'rate': row[2],
+                    'price': row[2],
+                    'location': row[3],
+                    'region': row[3],
+                    'source': row[4],
+                    'currency': 'ZAR'
+                }
+                for row in rows
+            ]
+            return result
+
+        except Exception as error:
+            print(f"Error getting fuel prices by date range: {error}")
+            return []
