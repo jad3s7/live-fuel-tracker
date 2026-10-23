@@ -16,6 +16,7 @@ help:
 	@echo "  make install       - Install Python dependencies"
 	@echo "  make test          - Run pytest tests"
 	@echo "  make test-verbose  - Run tests with verbose output"
+	@echo "  make pipeline      - Run ETL pipeline"
 
 # Install dependencies
 install:
@@ -34,3 +35,9 @@ test-verbose:
 	@echo "$(BLUE)Running tests with verbose output...$(NC)"
 	$(PYTHON) -m pytest tests/ -vv --tb=short
 	@echo "$(GREEN)Test completed!$(NC)"
+
+# Run ETL pipeline
+pipeline:
+	@echo "$(BLUE)Running ETL pipeline...$(NC)"
+	$(PYTHON) src/automation/pipeline.py
+	@echo "$(GREEN)Pipeline completed!$(NC)"
