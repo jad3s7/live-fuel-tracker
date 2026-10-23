@@ -346,7 +346,7 @@ class FuelExtractor:
             return 'Coastal'
         return 'Inland'
 
-    def get_fuel_price_by_type(self, fuel_type: str = 'Petrol 95', region: str = 'inland') -> dict:
+    def _get_fuel_price_by_type(self, fuel_type: str = 'Petrol 95', region: str = 'inland') -> dict:
         """
         Fetches the current price for a specific fuel type and region.
         
@@ -382,14 +382,14 @@ class FuelExtractor:
         
         return None
 
-    def get_current_rate(self, fuel_type: str = 'Petrol 95', location: str = 'Inland') -> dict:
+    def _get_current_price(self, fuel_type: str = 'Petrol 95', location: str = 'Inland') -> dict:
         """
         Fetches the current fuel price record for a given fuel type and location.
         Compatible with previous get_current_rate interface.
         """
-        return self.get_fuel_price_by_type(fuel_type=fuel_type, region=location)
+        return self._get_fuel_price_by_type(fuel_type=fuel_type, region=location)
 
-    def get_historical_data(self, days: int = 30, fuel_type: str = 'Petrol 95', location: str = 'Inland') -> list:
+    def _get_historical_data(self, days: int = 30, fuel_type: str = 'Petrol 95', location: str = 'Inland') -> list:
         """
         Fetches historical fuel price data for the specified number of days.
         
@@ -434,7 +434,7 @@ class FuelExtractor:
         
         return historical_data
 
-    def get_price_comparison(self) -> dict:
+    def _get_price_comparison(self) -> dict:
         """
         Returns a comparison of fuel prices across all types and regions.
         
@@ -444,7 +444,7 @@ class FuelExtractor:
         current_data = self.get_current_prices()
         
         if not current_data or 'prices' not in current_data:
-            return None
+            return None #type: ignore
         
         comparison = {
             'timestamp': current_data['timestamp'],
@@ -475,7 +475,6 @@ class FuelExtractor:
             })
         
         # Find cheapest and most expensive (using inland prices for comparison)
-
         cheapest_fuel = all_prices[0]
         most_expensive_fuel = all_prices[0]
         for prices in all_prices:
@@ -493,13 +492,14 @@ if __name__ == '__main__':
     extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
 
     print("Fetching current South African fuel prices...")
-    current_data = extraction.get_current_prices()
+    current_data = extraction._get_current_price()
 
     if current_data:
         print("\n=== Current Fuel Prices ===")
         print(f"Timestamp: {current_data['timestamp']}")
         print(f"Source: {current_data['source']}, API unavailable.")
         print("\nPrices (R/litre):")
+
         for fuel_type, prices in current_data['prices'].items():
             print(f"  {fuel_type}:")
             print(f"    Inland:  R{prices['inland']}/litre")
@@ -510,39 +510,16 @@ if __name__ == '__main__':
     print("\n" + "="*50)
     
     print("Fetching specific fuel price")
-    specific_price_95 = extraction.get_fuel_price_by_type('petrol_95', 'inland')
+    specific_price_95 = extraction._get_fuel_price_by_type('petrol_95', 'inland')
     # fetching petrol 95
     if specific_price_95:
         print("=== Petrol 95 ===")
         print(f"Price: R{specific_price_95['price']}/litre")
         print(f"Timestamp: {specific_price_95['timestamp']}")
-
-    # fetching petrol 93
-    specific_price_93 = extraction.get_fuel_price_by_type("petrol_93", "Inland")
-    if specific_price_93:
-        print("\n=== Petrol 93 ===")
-        print(f"Price: R{specific_price_93['price']}/litre")
-        print(f"Timestamp: {specific_price_93['timestamp']}")
-
-     
-    # fetching diesel 50ppm
-    specific_price_50 = extraction.get_fuel_price_by_type("diesel_50ppm", "Inland")
-    if specific_price_93:
-        print("\n=== Diesel 50ppm ===")
-        print(f"Price: R{specific_price_93['price']}/litre")
-        print(f"Timestamp: {specific_price_93['timestamp']}")
-
-
-    # fetching diesel 500ppm
-    specific_price_500ppm = extraction.get_fuel_price_by_type('diesel_500ppm', 'inland')
-    if specific_price_500ppm:
-        print("\n=== Diesel 50ppm ===")
-        print(f"Price: R{specific_price_500ppm['price']}/litre")
-        print(f"Timestamp: {specific_price_500ppm['timestamp']}")
     
     print("\n" + "="*50)
     print("Fetching price comparison...")
-    comparison = extraction.get_price_comparison()
+    comparison = extraction._get_price_comparison()
     if comparison:
         print(f"Cheapest fuel: {comparison['cheapest_fuel']}")
         print(f"Most expensive fuel: {comparison['most_expensive_fuel']}")
@@ -552,7 +529,7 @@ if __name__ == '__main__':
     
     print("\n" + "="*50)
     print("Fetching historical data (last 5 days)...")
-    historical_data = extraction.get_historical_data(days=5)
+    historical_data = extraction._get_historical_data(days=5)
     print(f"Retrieved {len(historical_data)} historical data points")
     if historical_data:
         print(f"Sample entry: {historical_data[0]}")

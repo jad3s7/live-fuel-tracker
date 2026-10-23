@@ -16,10 +16,10 @@ class TestFuelExtractor:
         assert extraction is not None
         assert extraction.base_url == "https://api.fuelsa.co.za/v1/prices"
 
-    def test_get_current_rate_structure(self) -> None:
+    def test_get_current_price_structure(self) -> None:
         """Test that checks if current_rate returns the correct fuel data structure."""
         extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
-        result = extraction.get_current_rate()
+        result = extraction._get_current_price()
 
         if result:
             assert isinstance(result, dict)
@@ -31,10 +31,10 @@ class TestFuelExtractor:
             assert isinstance(price, (int, float))
             assert price > 0
 
-    def test_get_current_rate_valid_values(self) -> None:
+    def test_get_current_price_valid_values(self) -> None:
         """Test that checks if current fuel rate returns valid South African price values."""
         extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
-        result = extraction.get_current_rate()
+        result = extraction._get_current_price()
 
         if result:
             price = result.get('price_per_liter', result.get('rate'))
@@ -46,7 +46,7 @@ class TestFuelExtractor:
     def test_get_fuel_price_by_type(self) -> None:
         """Test fetching a specific fuel type and region."""
         extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
-        result = extraction.get_fuel_price_by_type(fuel_type='Petrol 95', region='Inland')
+        result = extraction._get_fuel_price_by_type(fuel_type='Petrol 95', region='Inland')
 
         assert result is not None
         assert result['fuel_type'] == 'Petrol 95'
@@ -56,7 +56,7 @@ class TestFuelExtractor:
     def test_get_price_comparison(self) -> None:
         """Test price comparison across regions and fuel types."""
         extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
-        comparison = extraction.get_price_comparison()
+        comparison = extraction._get_price_comparison()
 
         assert comparison is not None
         assert 'regional_differences' in comparison
@@ -66,7 +66,7 @@ class TestFuelExtractor:
     def test_get_historical_data_structure(self) -> None:
         """Test that checks if historical_data returns the correct structure."""
         extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
-        result = extraction.get_historical_data(days=5)
+        result = extraction._get_historical_data(days=5)
 
         assert isinstance(result, list)
 
@@ -83,7 +83,7 @@ class TestFuelExtractor:
         """Test that checks for the return of the historical data, should be 5 days."""
         extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
         days = 5
-        result = extraction.get_historical_data(days=days)
+        result = extraction._get_historical_data(days=days)
 
         if result:
             assert len(result) <= days
@@ -91,7 +91,7 @@ class TestFuelExtractor:
     def test_get_historical_data_with_zero_days(self) -> None:
         """Test that checks if historical data can be returned with zero day requests."""
         extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
-        result = extraction.get_historical_data(days=0)
+        result = extraction._get_historical_data(days=0)
 
         assert isinstance(result, list)
         assert len(result) == 0
