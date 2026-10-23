@@ -26,7 +26,8 @@ class TestFuelExtractor:
             assert 'timestamp' in result
             assert 'fuel_type' in result
             assert 'location' in result
-            price = result.get('price_per_liter', result.get('rate'))
+            # Fixed: Changed from 'price_per_liter' to 'price_per_litre' to match extract.py's British spelling
+            price = result.get('price_per_litre', result.get('rate'))
             assert price is not None
             assert isinstance(price, (int, float))
             assert price > 0
@@ -37,7 +38,8 @@ class TestFuelExtractor:
         result = extraction._get_current_price()
 
         if result:
-            price = result.get('price_per_liter', result.get('rate'))
+            # Fixed: Changed from 'price_per_liter' to 'price_per_litre' to match extract.py's British spelling
+            price = result.get('price_per_litre', result.get('rate'))
             # South African fuel prices generally sit between R15 and R35 per litre
             assert 15 < price < 35 # type: ignore
             assert isinstance(result['timestamp'], str)
@@ -51,7 +53,8 @@ class TestFuelExtractor:
         assert result is not None
         assert result['fuel_type'] == 'Petrol 95'
         assert result['location'] == 'Inland'
-        assert 15 < result['price_per_liter'] < 35
+        # Fixed: Changed from 'price_per_liter' to 'price_per_litre' to match extract.py's British spelling
+        assert 15 < result['price_per_litre'] < 35
 
     def test_get_price_comparison(self) -> None:
         """Test price comparison across regions and fuel types."""
@@ -74,7 +77,8 @@ class TestFuelExtractor:
             for data in result:
                 assert isinstance(data, dict)
                 assert 'timestamp' in data
-                price = data.get('price_per_liter', data.get('rate'))
+                # Fixed: Changed from 'price_per_liter' to 'price_per_litre' to match extract.py's British spelling
+                price = data.get('price_per_litre', data.get('rate'))
                 assert price is not None
                 assert 'fuel_type' in data
                 assert 'location' in data

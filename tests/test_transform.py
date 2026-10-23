@@ -95,7 +95,7 @@ class TestDataTransformer:
     def test_clean_rate_data_invalid_location(self, transformer):
         """Test cleaning data with invalid location."""
         invalid_loc = {
-            'price_per_liter': 22.95,
+            'price_per_litre': 22.95,
             'timestamp': '2026-09-21 10:00:00',
             'fuel_type': 'Petrol 95',
             'location': 'Mars',
@@ -124,21 +124,21 @@ class TestDataTransformer:
         """ Test transforming the list of dictionaries to Dataframe."""
         data_list = [
               {
-                'price_per_liter': 22.95,
+                'price_per_litre': 22.95,
                 'timestamp': '2026-09-21 10:00:00',
                 'fuel_type': 'Petrol 95',
                 'location': 'Inland',
                 'source': 'DMRE'
             },
             {
-                'price_per_liter': 22.45,
+                'price_per_litre': 22.45,
                 'timestamp': '2026-09-21 11:00:00',
                 'fuel_type': 'Petrol 93',
                 'location': 'Inland',
                 'source': 'DMRE'
             },
             {
-                'price_per_liter': 21.30,
+                'price_per_litre': 21.30,
                 'timestamp': '2026-09-21 12:00:00',
                 'fuel_type': 'Diesel 50ppm',
                 'location': 'Inland',
@@ -150,7 +150,7 @@ class TestDataTransformer:
 
         assert isinstance(dataframe, pd.DataFrame)
         assert len(dataframe) == 3
-        assert 'price_per_liter' in dataframe.columns
+        assert 'price_per_litre' in dataframe.columns
         assert 'timestamp' in dataframe.columns
 
     def test_transform_empty_data_to_dataframe(self, transformer):
@@ -159,26 +159,26 @@ class TestDataTransformer:
 
         assert isinstance(dataframe, pd.DataFrame)
         assert len(dataframe) == 0
-        assert 'price_per_liter' not in dataframe.columns
+        assert 'price_per_litre' not in dataframe.columns
     
 
     def test_add_moving_averages(self, transformer):
         """ Test that checks for adding moving average to Dataframe."""
         data_list = [
             {
-                'price_per_liter': 22.95,
+                'price_per_litre': 22.95,
                 'timestamp': '2026-09-21 10:00:00',
                 'fuel_type': 'Petrol 95',
                 'location': 'Inland'
             },
             {
-                'price_per_liter': 23.05,
+                'price_per_litre': 23.05,
                 'timestamp': '2026-09-21 11:00:00',
                 'fuel_type': 'Petrol 95',
                 'location': 'Inland'
             },
             {
-                'price_per_liter': 22.85,
+                'price_per_litre': 22.85,
                 'timestamp': '2026-09-21 12:00:00',
                 'fuel_type': 'Petrol 95',
                 'location': 'Inland'
@@ -195,22 +195,22 @@ class TestDataTransformer:
         """ Test that checks adding price change to the dataframe."""
         data_list = [
             {
-            'price_per_liter': 22.95,
+            'price_per_litre': 22.95,
             'timestamp': '2026-09-21 10:00:00',
             'fuel_type': 'Petrol 95',
             'location': 'Inland',
             },
             {
-            'price_per_liter': 23.13,
+            'price_per_litre': 23.13,
             'timestamp': '2026-09-21 11:00:00',
             'fuel_type': 'Petrol 95',
-            'location': 'Inland',    
+            'location': 'Inland',
             }
         ]
 
         dataframe = transformer._transform_to_dataframe(data_list)
         dataframe = transformer._add_price_change(dataframe)
-        
+
 
         assert 'price_change' in dataframe.columns is not None
         assert 'price_change_percentage' in dataframe.columns is not None
@@ -225,13 +225,13 @@ class TestDataTransformer:
         """ Test the outlier detection in the dataframe."""
         data_list = [
             {
-            'price_per_liter': 22.95,
+            'price_per_litre': 22.95,
             'timestamp': '2026-09-21 10:00:00',
             'fuel_type': 'Petrol 95',
             'location': 'Inland'
-            }, 
+            },
             {
-            'price_per_liter': 23.00,
+            'price_per_litre': 23.00,
             'timestamp': '2026-09-21 11:00:00',
             'fuel_type': 'Petrol 95',
             'location': 'Inland'
@@ -248,21 +248,21 @@ class TestDataTransformer:
         """ Test that checks that data aggregation is done correctly by time period."""
         data_list = [
             {
-                'price_per_liter': 22.95,
+                'price_per_litre': 22.95,
                 'timestamp': '2026-09-21 10:00:00',
                 'fuel_type': 'Petrol 95',
                 'location': 'Inland'
             },
             {
-               'price_per_liter': 23.05,
+               'price_per_litre': 23.05,
                 'timestamp': '2026-09-21 11:00:00',
                 'fuel_type': 'Petrol 95',
                 'location': 'Inland'
             }
         ]
         dataframe = transformer._transform_to_dataframe(data_list)
-        aggregated_df = transformer._aggregated_data(dataframe, freq='D') 
-    
+        aggregated_df = transformer._aggregated_data(dataframe, freq='D')
+
         assert isinstance(aggregated_df, pd.DataFrame)
 
 
@@ -270,7 +270,7 @@ class TestDataTransformer:
         """ Test that checks for data quality."""
         data_list = [
             {
-                'price_per_liter': 22.95,
+                'price_per_litre': 22.95,
                 'timestamp': '2026-09-21 10:00:00',
                 'fuel_type': 'Petrol 95',
                 'location': 'Inland'

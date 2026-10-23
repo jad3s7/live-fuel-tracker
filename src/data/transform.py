@@ -228,10 +228,11 @@ class DataTransformer:
         """
         if dataframe.empty:
             return dataframe
-        
+
         dataframe = dataframe.copy()
-        if 'price_per_liter' in dataframe.columns:
-            col = 'price_per_liter'
+
+        if 'price_per_litre' in dataframe.columns:
+            col = 'price_per_litre'
         else:
             col = 'rate'
 
@@ -253,8 +254,10 @@ class DataTransformer:
             return dataframe
 
         dataframe = dataframe.copy()
-        if 'price_per_liter' in dataframe.columns:
-            col = 'price_per_liter'
+        # Fixed: Changed from 'price_per_liter' to 'price_per_litre' to match extract.py's British spelling
+        # This ensures consistency across the ETL pipeline
+        if 'price_per_litre' in dataframe.columns:
+            col = 'price_per_litre'
         else:
             col = 'rate'
 
@@ -266,14 +269,14 @@ class DataTransformer:
 
     def _detect_outliers_in_dataframe(self, dataframe: pd.DataFrame, threshold: float = 2.0) -> pd.DataFrame:
 
-        """ 
+        """
         Tests checks how many std dev a fuel price point is from the mean column.
         z-scores are used to describe how many standard deviations there are in the fuel price data.
-        
+
         Args:
             dataframe: DataFrame with fuel price data.
             thresehold: Z-score thresehold for outlier detection.
-        
+
         Returns:
             Dataframe with is_outlier column
         """
@@ -282,15 +285,16 @@ class DataTransformer:
             return dataframe
 
         dataframe = dataframe.copy()
-        if 'price_per_liter' in dataframe.columns:
-            col = 'price_per_liter'
+        
+        if 'price_per_litre' in dataframe.columns:
+            col = 'price_per_litre'
         else:
             col = 'rate'
 
         mean = dataframe[col].mean()
         std = dataframe[col].std()
 
-        # Check if values are missing 
+        # Check if values are missing
         if pd.isna(std) or std == 0:
             dataframe['is_outlier'] = False
         else:
@@ -303,7 +307,7 @@ class DataTransformer:
         """
         Aggregates data by time period.
             Time periods: 'D': Daily , 'W': Weekly , 'M': Monthly
-        
+
         Args:
             dataframe: DataFrame with fuel price data.
             frequency: Frequency for aggregation (D, W or M)
@@ -316,8 +320,9 @@ class DataTransformer:
 
         dataframe = dataframe.copy()
 
-        if 'price_per_liter' in dataframe.columns:
-            col = 'price_per_liter'
+       
+        if 'price_per_litre' in dataframe.columns:
+            col = 'price_per_litre'
         else:
             col = 'rate'
 

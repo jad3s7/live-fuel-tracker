@@ -349,11 +349,11 @@ class FuelExtractor:
     def _get_fuel_price_by_type(self, fuel_type: str = 'Petrol 95', region: str = 'inland') -> dict:
         """
         Fetches the current price for a specific fuel type and region.
-        
+
         Args:
             fuel_type: Type of fuel (petrol_95, petrol_93, diesel_50ppm, diesel_500ppm)
             region: Region (inland or coastal)
-            
+
         Returns:
             Dict: Contains price data for the specific fuel type and region.
         """
@@ -361,25 +361,27 @@ class FuelExtractor:
         norm_region = self._normalize_region(region)
         raw_fuel = self._to_raw_fuel_type(norm_fuel)
         raw_region = norm_region.lower()
-        
+
         all_prices = self.get_current_prices()
-        
+
         if all_prices and 'prices' in all_prices:
             price = all_prices['prices'].get(raw_fuel, {}).get(raw_region)
             if price is None:
                 price = self.base_prices.get(raw_fuel, {}).get(raw_region, 22.95)
-            
+
             return {
                 'fuel_type': norm_fuel,
                 'location': norm_region,
                 'region': norm_region,
-                'price_per_liter': price,
+                # Fixed: Changed from 'price_per_liter' to 'price_per_litre' for consistency with British spelling
+                # This ensures consistency across the ETL pipeline with transform.py
+                'price_per_litre': price,
                 'price': price,
                 'rate': price,
                 'timestamp': all_prices['timestamp'],
                 'source': all_prices.get('source', 'simulated')
             }
-        
+
         return None
 
     def _get_current_price(self, fuel_type: str = 'Petrol 95', location: str = 'Inland') -> dict:
@@ -392,12 +394,12 @@ class FuelExtractor:
     def _get_historical_data(self, days: int = 30, fuel_type: str = 'Petrol 95', location: str = 'Inland') -> list:
         """
         Fetches historical fuel price data for the specified number of days.
-        
+
         Args:
             days: Number of days for historical data to fetch (default: 30)
             fuel_type: Optional fuel type (default: 'Petrol 95')
             location: Optional location (default: 'Inland')
-            
+
         Returns:
             List of dicts containing historical fuel price data.
         """
@@ -420,7 +422,9 @@ class FuelExtractor:
                 'fuel_type': norm_fuel,
                 'location': norm_region,
                 'region': norm_region,
-                'price_per_liter': price,
+                # Fixed: Changed from 'price_per_liter' to 'price_per_litre' for consistency with British spelling
+                # This ensures consistency across the ETL pipeline with transform.py
+                'price_per_litre': price,
                 'price': price,
                 'rate': price,
                 'source': 'simulated'
@@ -429,9 +433,9 @@ class FuelExtractor:
                 for rg in self.regions:
                     bp = self.base_prices[ft][rg]
                     day_data[f"{ft}_{rg}"] = round(bp + daily_variation, 2)
-            
+
             historical_data.append(day_data)
-        
+
         return historical_data
 
     def _get_price_comparison(self) -> dict:
@@ -492,9 +496,11 @@ if __name__ == '__main__':
     extraction = FuelExtractor(api_provider="simulated", api_key="", base_url="")
 
     print("Fetching current South African fuel prices...")
-    current_data = extraction._get_current_price()
+    # Fixed: Changed from _get_current_price() to get_current_prices() to get all fuel types
+    # _get_current_price() returns a single fuel type record, not the full structure with 'prices' key
+    current_data = extraction.get_current_prices()
 
-    if current_data:
+    if current_data and 'prices' in current_data:
         print("\n=== Current Fuel Prices ===")
         print(f"Timestamp: {current_data['timestamp']}")
         print(f"Source: {current_data['source']}, API unavailable.")
@@ -506,9 +512,9 @@ if __name__ == '__main__':
             print(f"    Coastal: R{prices['coastal']}/litre")
     else:
         print("Failed to fetch current fuel prices")
-    
+
     print("\n" + "="*50)
-    
+
     print("Fetching specific fuel price")
     specific_price_95 = extraction._get_fuel_price_by_type('petrol_95', 'inland')
     # fetching petrol 95
