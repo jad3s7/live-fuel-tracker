@@ -49,7 +49,7 @@ def run_etl_pipeline():
         regions = ['Inland', 'Coastal']
         for fueltype in fuel_types:
             for region in regions:
-                current_price = extractor.get_current_prices(fuel_type=fueltype, location=region)
+                current_price = extractor._get_current_price(fuel_type=fueltype, location=region)
                 if current_price:
                     all_raw_data.append(current_price)
 
@@ -58,13 +58,13 @@ def run_etl_pipeline():
             return False
 
         sample_price = all_raw_data[0]
-        print(f"Extracted current price: {sample_price['fuel_type']} ({sample_price['location']}) -R{sample_price['price_per_liter']:.2f}/L")
+        print(f"Extracted current price: {sample_price['fuel_type']} ({sample_price['location']}) -R{sample_price['price_per_litre']:.2f}/L")
 
 
         # retrieve the historical data for each fuel type and region.
         for fueltype in fuel_types:
             for region in regions:
-                historical_data = extractor.get_historical_data(days=7, fuel_type=fueltype, location=region)
+                historical_data = extractor._get_historical_data(days=7, fuel_type=fueltype, location=region)
                 all_raw_data.extend(historical_data)
 
         print(f"Total extracted raw records: {len(all_raw_data)}")
@@ -99,7 +99,7 @@ def run_etl_pipeline():
         print(f"Total records in database: {stats['total_records']}")
         print(f"Average price: R{stats['avg_price']:.2f}/L")
         print(f"Min price: R{stats['min_price']:.2f}/L")
-        print(f"Max price: R{stats['max_price']:2f}/L")
+        print(f"Max price: R{stats['max_price']:.2f}/L")
         print("=" * 50)
 
         return True
@@ -107,8 +107,6 @@ def run_etl_pipeline():
     except Exception as error:
         print(f"Error during ETL pipeline: {error}")
         return False
-
-
 
 
 if __name__ == '__main__':
