@@ -46,8 +46,28 @@ class FuelReportGenerator:
         os.makedirs(self.output_dir, exist_ok=True)
         self.transformer = DataTransformer()
 
-    def _generate_report(self, filename = None) -> str:
-        pass
+    def _generate_report(self, filename:str = None) -> str:
+            """
+    Generates the PDF report.
+
+    Args:
+        filename: output file (will default to timestamped name)
+
+    Returns:
+        Absolute file path to the generated PDF report.
+    """
+    if not filename: 
+        timestamp_str = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"fuel_report_{timestamp_str}.pdf"
+    
+    output_path = os.path.join(self.output_dir, filename)
+
+    # Retrieve data from database
+    db = FuelDatabase(self.db_path)
+    latest_prices = db._get_latest_prices(limit=100)
+    overall_stats = db._get_statistics()
+    db.close()
+    
 
 def _generate_pdf_report(db_path = None, output_dir = None) -> str:
     pass
