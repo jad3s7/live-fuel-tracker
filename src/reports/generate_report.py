@@ -91,6 +91,15 @@ class FuelReportGenerator:
         textColor=colors.HexColor('#1a1a2e'),
         spaceAfter=4
     )
+    subtitle_style = ParagraphStyle(
+        'ReportSubtitle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=11,
+        leading=15,
+        textColor=colors.HexColor('#4a4e69'),
+        spaceAfter=12
+    )
 
 
 
