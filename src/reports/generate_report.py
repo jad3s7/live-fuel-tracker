@@ -67,7 +67,32 @@ class FuelReportGenerator:
     latest_prices = db._get_latest_prices(limit=100)
     overall_stats = db._get_statistics()
     db.close()
-    
+
+
+    # Build the document
+    doc = SimpleDocTemplate(
+        output_path,
+        pagesize=A4,
+        rightMargin=36,
+        leftMargin=36,
+        topMargin=36,
+        bottomMargin=36,
+    )
+
+    styles = getSampleStyleSheet()
+
+    # Customize the document
+    title_style = ParagraphStyle(
+        'ReportTitle'
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=22,
+        leading=26,
+        textColor=colors.HexColor('#1a1a2e'),
+        spaceAfter=4
+    )
+
+
 
 def _generate_pdf_report(db_path = None, output_dir = None) -> str:
     pass
