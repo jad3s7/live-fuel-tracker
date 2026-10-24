@@ -149,6 +149,13 @@ class FuelReportGenerator:
         leading=11,
     )
 
+    story = []
+    # Header Title
+    story.append(Paragraph("South African Fuel Tracker Price Report (ZAR)", title_style))
+    now_str = datetime.now().strftime('%d %B %Y, %H:%M:%S')
+    story.append(Paragraph(f"Official & Regulated Benchmark Tracking: Generated_ {now_str}", subtitle_style))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#0343ce"), spaceAfter=14)
+)
 
 
 def _generate_pdf_report(db_path = None, output_dir = None) -> str:
