@@ -150,11 +150,51 @@ class FuelReportGenerator:
     )
 
     story = []
+
+
     # Header Title
     story.append(Paragraph("South African Fuel Tracker Price Report (ZAR)", title_style))
     now_str = datetime.now().strftime('%d %B %Y, %H:%M:%S')
     story.append(Paragraph(f"Official & Regulated Benchmark Tracking: Generated_ {now_str}", subtitle_style))
     story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#0343ce"), spaceAfter=14)
+    
+    
+    # Executive Summary Box: Contains analysis
+    story.append(Paragraph("1: Executive Summary & National Overview", section_heading))
+
+    total_records = overall_stats.get('total_records', 0)
+    avg_price = overall_stats.get('avg_price', 0.0)
+    min_price = overall_stats.get('min_price', 0.0)
+    max_price = overall_stats.get('max_price', 0.0)
+
+    exec_data = [
+        [
+            Paragraph("<b>Total Tracked Records</b>", table_header_style),
+            Paragraph("<b>National Average</b>", table_header_style),
+            Paragraph("<b>Lowest Recorded Price</b>", table_header_style),
+            Paragraph("<b>Highest Recorded Price</b>",table_header_style)
+        ],
+        [
+            Paragraph(f"{total_records}", table_cell_style),
+            Paragraph(f"R{avg_price:.2f} / L", table_cell_style),
+            Paragraph(f"R{min_price:.2f} / L", table_cell_style),
+            Paragraph(f"R{max_price:.2f} / L", table_cell_style)
+        ]
+    ]
+
+    kpi_table = Table(kpi_data, colWidths=[130, 130, 130, 130])
+        kpi_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0f3460')),
+            ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#f0f4f8')),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#cbd5e1')),
+            ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e1')),
+        ]))
+        story.append(kpi_table)
+        story.append(Spacer(1, 14))
 )
 
 
