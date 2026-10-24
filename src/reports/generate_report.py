@@ -83,7 +83,7 @@ class FuelReportGenerator:
 
     # Customize the document
     title_style = ParagraphStyle(
-        'ReportTitle'
+        'ReportTitle',
         parent=styles['Heading1'],
         fontName='Helvetica-Bold',
         fontSize=22,
@@ -99,6 +99,54 @@ class FuelReportGenerator:
         leading=15,
         textColor=colors.HexColor('#4a4e69'),
         spaceAfter=12
+    )
+
+    section_heading = ParagraphStyle(
+        'SectionHeading',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=13,
+        leading=17,
+        textColor=colors.HexColor('#0f3460'),
+        spaceBefore=12,
+        spaceAfter=8
+    )
+
+    body_style = ParagraphStyle(
+        'Body',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9.5,
+        leading=13,
+        textColor=colors.HexColor('#22223b')
+    )
+
+    table_header_style = ParagraphStyle(
+        'TableHeader',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=9.5,
+        leading=12,
+        textColor=colors.white,
+        alignment=1
+    )
+
+    table_cell_style = ParagraphStyle(
+        'TableCell',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9,
+        leading=12,
+        textColor=colors.HexColor('#1a1a2e'),
+        alignment=1
+    )
+
+    disclaimer_style = ParagraphStyle(
+        'Disclaimer',
+        parent=styles['Italic'],
+        fontName='Helvetica-Oblique',
+        fontSize=8,
+        leading=11,
     )
 
 
