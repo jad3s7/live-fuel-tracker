@@ -332,7 +332,7 @@ class FuelReportGenerator:
             "Diesel wholesale prices are published as guidelines while retail profit margins are deregulated. "
             "Inland prices reflect pipeline and rail transportation cost differentials relative to coastal ports. "
             "This automated report is compiled by the Fuel Tracker Data Engineering Pipeline for tracking and analysis."
-            "This report is created by Data Engineer: Jady-Ray Tamboer."
+            "\nThis report is created by Data Engineer: Jady-Ray Tamboer."
         )
         story.append(Paragraph(disclaimer_text, disclaimer_style))
 
