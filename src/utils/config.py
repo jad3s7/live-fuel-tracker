@@ -43,8 +43,8 @@ class Config:
         self.sender_password = os.getenv('SENDER_PASSWORD', '')
 
         # Dashboard configuration
-        self.dashboard_port = int(os.getenv('DASHBOARD_PORT', '8501'))
-        self.dashboard_host: str = os.getenv('DASHBOARD_HOST', 'localhost')
+        self._dashboard_port = None
+        self._dashboard_host = None
 
         # Report configuratiion
         self.reports_dir: str = os.getenv('REPORTS_DIR', 'reports')
@@ -52,8 +52,27 @@ class Config:
 
         # Automation configuration
         self.auto_refresh_minutes = int(os.getenv('AUTO_REFRESH_MINUTES', '60'))
-        self.enable_email_alerts: bool = os.getenv('ENABLE_EMAIL_ALERTS','false').lower() == 'true'
+        self.enable_email_alerts: bool = os.getenv('ENABLE_EMAIL_ALERTS', 'false').lower() == 'true'
 
+    @property
+    def dashboard_port(self) -> int:
+        if self._dashboard_port is not None:
+            return self._dashboard_port
+        return int(os.getenv('DASHBOARD_PORT', '8501'))
+
+    @dashboard_port.setter
+    def dashboard_port(self, value: int):
+        self._dashboard_port = int(value) if value is not None else None
+
+    @property
+    def dashboard_host(self) -> str:
+        if self._dashboard_host is not None:
+            return self._dashboard_host
+        return os.getenv('DASHBOARD_HOST', 'localhost')
+
+    @dashboard_host.setter
+    def dashboard_host(self, value: str):
+        self._dashboard_host = value
 
     def get_database_path(self) -> str:
         """ 
