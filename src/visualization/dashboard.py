@@ -102,7 +102,7 @@ class FuelDashboard:
             color = colors.get(fuel_type, '#6366F1')
 
             fig.add_trace(go.Scatter(
-                x=fuel_data['timestamp'],
+                x=fuel_data['timestamp'].values,
                 y=fuel_data['price_per_liter'],
                 name=fuel_type,
                 line=dict(color=color, width=3),
