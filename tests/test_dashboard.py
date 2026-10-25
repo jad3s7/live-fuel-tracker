@@ -101,15 +101,17 @@ def test_dashboard_config_port_and_host(monkeypatch):
 def test_dashboard_main_port_fallback():
     """Verify that if requested port is blocked, main() catches OSError and falls back to an available port"""
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(("127.0.0.1", 8501))
+    sock.bind(("127.0.0.1", 0))
+    port = sock.getsockname()[1]
     sock.listen(1)
 
     app = None
     try:
-        app, local_url, _ = main(prevent_thread_lock=True, server_name="127.0.0.1", server_port=8501)
+        with pytest.warns(UserWarning, match="is in use"):
+            app, local_url, _ = main(prevent_thread_lock=True, server_name="127.0.0.1", server_port=port)
         assert app is not None
         assert local_url is not None
-        assert "8501" not in local_url
+        assert str(port) not in local_url
     finally:
         if app:
             app.close()
@@ -118,10 +120,15 @@ def test_dashboard_main_port_fallback():
 
 def test_dashboard_launch_briefly():
     """Test launching dashboard briefly in non-blocking mode to ensure clean binding"""
-    app, local_url, _ = main(prevent_thread_lock=True, server_name="127.0.0.1", server_port=8501)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(("127.0.0.1", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+
+    app, local_url, _ = main(prevent_thread_lock=True, server_name="127.0.0.1", server_port=port)
     try:
         assert app is not None
-        assert "8501" in local_url
+        assert str(port) in local_url
     finally:
         app.close()
 
