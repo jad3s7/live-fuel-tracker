@@ -13,6 +13,7 @@ import requests
 import json
 import random
 from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
 
 
 class FuelExtractor:
@@ -33,6 +34,7 @@ class FuelExtractor:
     Supported API providers:
     - zaref.dev: https://zaref.dev/docs/fuel-price-api (paid, $0.005/call)
     - fuelsa.co.za: https://www.fuelsa.co.za/ (subscription, R59/1000 calls)
+    - scrape: Web scraping from DMRE/official sources (free, may be fragile)
     - simulated: Fallback for demonstration
     """
     def __init__(self, api_provider: str, api_key: str, base_url: str) -> None:
@@ -50,12 +52,13 @@ class FuelExtractor:
         self.fuel_types = ['petrol_95', 'petrol_93', 'diesel_50ppm', 'diesel_500ppm']
         self.regions = ['inland', 'coastal']
 
-        # Base fuel prices in R/litre (simulated current values for fallback)
+        # Base fuel prices in R/litre (official DMRE prices as of August 2024)
+        # Source: https://www.dmre.gov.za - updated monthly on first Wednesday
         self.base_prices = {
-            'petrol_95': {'inland': 22.95, 'coastal': 22.15},
-            'petrol_93': {'inland': 22.45, 'coastal': 21.65},
-            'diesel_50ppm': {'inland': 21.30, 'coastal': 20.50},
-            'diesel_500ppm': {'inland': 21.10, 'coastal': 20.30}
+            'petrol_95': {'inland': 23.11, 'coastal': 22.32},  # August 2024
+            'petrol_93': {'inland': 22.71, 'coastal': 21.92},  # August 2024
+            'diesel_50ppm': {'inland': 20.74, 'coastal': 20.38},  # August 2024 (0.005%)
+            'diesel_500ppm': {'inland': 20.38, 'coastal': 20.38}  # August 2024 (0.05%)
         }
 
     def _get_default_base_url(self) -> str:
@@ -85,16 +88,22 @@ class FuelExtractor:
         """
         try:
             # Try to fetch from real API based on provider
-            if self.api_provider in ['zaref', 'fuelsa']:
+            if self.api_provider in ['zaref', 'fuelsa', 'scrape']:
                 if self.api_provider == 'zaref':
                     api_data = self._fetch_from_zaref()
                 elif self.api_provider == 'fuelsa':
                     api_data = self._fetch_from_fuelsa()
+                elif self.api_provider == 'scrape':
+                    # Try oilprices.co.za first (more reliable)
+                    api_data = self._fetch_from_oilprices()
+                    if not api_data:
+                        # Fallback to DMRE
+                        api_data = self._fetch_from_scrape()
 
                 if api_data:
                     return api_data
                 else:
-                    print(f"API request failed for {self.api_provider}, falling back to simulated data")
+                    print(f"Data fetch failed for {self.api_provider}, falling back to simulated data")
 
             # Fallback to simulated data
             return self._generate_simulated_data()
@@ -171,6 +180,221 @@ class FuelExtractor:
         except Exception as error:
             print(f"Error fetching from fuelsa: {error}")
             return None
+
+    def _fetch_from_scrape(self) -> dict:
+        """
+        Scrape fuel prices from official DMRE website.
+
+        Returns:
+            Dict with parsed fuel prices or None if failed.
+        """
+        try:
+            # DMRE fuel prices page (fixed URL)
+            url = "https://www.dmre.gov.za/Services/Petroleum-Resources/Fuel-Prices"
+
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Connection': 'keep-alive',
+            }
+
+            response = requests.get(url, headers=headers, timeout=15)
+
+            if response.status_code != 200:
+                print(f"DMRE website returned status code: {response.status_code}")
+                return None
+
+            soup = BeautifulSoup(response.content, 'lxml')
+
+            # Try to find fuel price data in the page
+            # Look for price patterns in the HTML
+            result = {
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'source': 'dmre_scrape',
+                'prices': {}
+            }
+
+            # Attempt 1: Look for table with fuel prices
+            tables = soup.find_all('table')
+            for table in tables:
+                rows = table.find_all('tr')
+                for row in rows:
+                    cells = row.find_all(['td', 'th'])
+                    if len(cells) >= 3:
+                        # Look for fuel type names
+                        row_text = ' '.join([cell.get_text(strip=True) for cell in cells])
+                        if any(fuel in row_text.lower() for fuel in ['petrol', 'diesel']):
+                            # Try to extract prices from this row
+                            prices_found = self._extract_prices_from_text(row_text)
+                            if prices_found:
+                                result['prices'].update(prices_found)
+
+            # Attempt 2: Look for price values in the page (fallback)
+            if not result['prices']:
+                all_text = soup.get_text()
+                prices_found = self._extract_prices_from_text(all_text)
+                if prices_found:
+                    result['prices'] = prices_found
+
+            # If scraping failed, try to get from the latest PDF link
+            if not result['prices']:
+                pdf_links = soup.find_all('a', href=lambda x: x and '.pdf' in x.lower())
+                if pdf_links:
+                    print(f"Found {len(pdf_links)} PDF links, but PDF parsing not implemented")
+
+            # Return result if we found prices, otherwise None
+            return result if result['prices'] else None
+
+        except Exception as error:
+            print(f"Error scraping DMRE website: {error}")
+            return None
+
+    def _fetch_from_oilprices(self) -> dict:
+        """
+        Scrape fuel prices from oilprices.co.za (reliable HTML table source).
+
+        Returns:
+            Dict with parsed fuel prices or None if failed.
+        """
+        try:
+            url = "https://oilprices.co.za/fuel-price"
+
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            }
+
+            response = requests.get(url, headers=headers, timeout=15)
+
+            if response.status_code != 200:
+                print(f"OilPrices.co.za returned status code: {response.status_code}")
+                return None
+
+            soup = BeautifulSoup(response.content, 'lxml')
+
+            result = {
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'source': 'oilprices_scrape',
+                'prices': {}
+            }
+
+            # Find the fuel price table
+            tables = soup.find_all('table')
+            for table in tables:
+                rows = table.find_all('tr')
+                for row in rows:
+                    cells = row.find_all(['td', 'th'])
+                    if len(cells) >= 3:
+                        row_text = ' '.join([cell.get_text(strip=True) for cell in cells])
+
+                        # Extract fuel type and prices
+                        if 'Petrol 95' in row_text:
+                            prices = self._extract_prices_from_row(row_text, 'petrol_95')
+                            if prices:
+                                result['prices'].update(prices)
+                        elif 'Petrol 93' in row_text:
+                            prices = self._extract_prices_from_row(row_text, 'petrol_93')
+                            if prices:
+                                result['prices'].update(prices)
+                        elif 'Diesel 0.05%' in row_text:
+                            prices = self._extract_prices_from_row(row_text, 'diesel_500ppm')
+                            if prices:
+                                result['prices'].update(prices)
+                        elif 'Diesel 0.005%' in row_text:
+                            prices = self._extract_prices_from_row(row_text, 'diesel_50ppm')
+                            if prices:
+                                result['prices'].update(prices)
+
+            return result if result['prices'] else None
+
+        except Exception as error:
+            print(f"Error scraping oilprices.co.za: {error}")
+            return None
+
+    def _extract_prices_from_row(self, row_text: str, fuel_type: str) -> dict:
+        """Extract inland and coastal prices from a table row."""
+        import re
+
+        prices = {}
+        # Match RXX.XX format
+        price_matches = re.findall(r'R(\d{1,3}\.\d{2})', row_text)
+
+        if len(price_matches) >= 2:
+            prices[fuel_type] = {
+                'inland': float(price_matches[0]),
+                'coastal': float(price_matches[1])
+            }
+        elif len(price_matches) == 1:
+            prices[fuel_type] = {
+                'inland': float(price_matches[0]),
+                'coastal': float(price_matches[0])  # Assume same if only one
+            }
+
+        return prices
+
+    def _extract_prices_from_text(self, text: str) -> dict:
+        """
+        Extract fuel prices from text using regex patterns.
+
+        Args:
+            text: Text to search for prices
+
+        Returns:
+            Dict with fuel prices found
+        """
+        import re
+
+        prices = {}
+
+        # Pattern to match prices like R22.95 or 22.95
+        price_pattern = r'R?(\d{1,2}\.\d{2})'
+
+        # Look for fuel type and price combinations
+        fuel_patterns = {
+            'petrol_95': [r'petrol\s*95', r'95\s*ulp', r'95\s*unleaded'],
+            'petrol_93': [r'petrol\s*93', r'93\s*ulp', r'93\s*unleaded'],
+            'diesel_50ppm': [r'diesel\s*50ppm', r'diesel\s*0\.005%', r'diesel\s*50\s*ppm'],
+            'diesel_500ppm': [r'diesel\s*500ppm', r'diesel\s*0\.05%', r'diesel\s*500\s*ppm'],
+        }
+
+        region_patterns = {
+            'inland': [r'inland', r'gauteng', r'reef'],
+            'coastal': [r'coastal', r'coast', r'cape'],
+        }
+
+        # Try to find fuel prices
+        for fuel_type, fuel_regexes in fuel_patterns.items():
+            for fuel_regex in fuel_regexes:
+                fuel_match = re.search(fuel_regex, text, re.IGNORECASE)
+                if fuel_match:
+                    # Look for prices near this fuel type
+                    context_start = max(0, fuel_match.start() - 200)
+                    context_end = min(len(text), fuel_match.end() + 200)
+                    context = text[context_start:context_end]
+
+                    # Find all prices in context
+                    price_matches = re.findall(price_pattern, context)
+
+                    if len(price_matches) >= 2:
+                        # Assume first is inland, second is coastal
+                        if fuel_type not in prices:
+                            prices[fuel_type] = {}
+                        prices[fuel_type]['inland'] = float(price_matches[0])
+                        prices[fuel_type]['coastal'] = float(price_matches[1])
+                        break
+                    elif len(price_matches) == 1:
+                        # Only one price found, might need region context
+                        if fuel_type not in prices:
+                            prices[fuel_type] = {}
+                        # Check if context has region info
+                        for region, region_regexes in region_patterns.items():
+                            for region_regex in region_regexes:
+                                if re.search(region_regex, context, re.IGNORECASE):
+                                    prices[fuel_type][region] = float(price_matches[0])
+                                    break
+
+        return prices
 
     def _parse_zaref_response(self, data: dict) -> dict:
         """
