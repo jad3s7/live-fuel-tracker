@@ -160,8 +160,8 @@ class FuelDashboard:
         latest = df.groupby(['fuel_type', 'location']).last().reset_index()
 
         colors = {
-            'Inland': "#7A4D11",    # Red
-            'Coastal': "#05066D",   # Blue
+            'Inland': "#ECCE24",    # Red
+            'Coastal': "#0509D1",   # Blue
         }
 
         for location in latest['location'].unique():
@@ -287,7 +287,7 @@ class FuelDashboard:
                     border-radius: 10px;
                     padding: 16px;
                     display: flex;
-                    flex-direction: column;
+                    flex-direction: row;
                     align-items: center;
                     text-align: center;
                 ">
