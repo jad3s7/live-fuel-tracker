@@ -287,7 +287,7 @@ class FuelDashboard:
                     border-radius: 10px;
                     padding: 16px;
                     display: flex;
-                    flex-direction: row;
+                    flex-direction: column;
                     align-items: center;
                     text-align: center;
                 ">
