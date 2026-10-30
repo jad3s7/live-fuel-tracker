@@ -550,7 +550,7 @@ To monitor your automated pipeline runs:
 - Test coverage reporting
 
 **Key Files**: `tests/test_extraction.py`, `tests/test_transform.py`, `tests/test_database.py`
-
+https://youtu.be/Zk7JAJdnM_A
 ### 8. **Configuration Management**
 - Centralized configuration through environment variables
 - Database path, API settings, email configuration, dashboard settings
